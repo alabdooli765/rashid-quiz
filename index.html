@@ -367,7 +367,7 @@ function updateScore(){$('sOk').textContent=S.ok;$('sTry').textContent=S.tries;$
 let audioEl = new Audio(); let ttsVoice=null;
 function pickVoice(){const vs=speechSynthesis.getVoices();ttsVoice=vs.find(v=>/ar[-_]AE/i.test(v.lang))||vs.find(v=>/^ar/i.test(v.lang))||null;}
 if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
-function setTalking(on){S.speaking=on;Avatar.setState(on?'talk':(S.on?(S.busy?'think':'listen'):'idle'));const m=$('mic');m.classList.toggle('speak',on);m.classList.toggle('listen',!on&&S.on);$('micTxt').textContent=on?'راشد يتكلم…':'راشد يسمعك…';}
+function setTalking(on){S.speaking=on; if(!on) speakEndAt=performance.now();Avatar.setState(on?'talk':(S.on?(S.busy?'think':'listen'):'idle'));const m=$('mic');m.classList.toggle('speak',on);m.classList.toggle('listen',!on&&S.on);$('micTxt').textContent=on?'راشد يتكلم…':'راشد يسمعك…';}
 function playFile(src){return new Promise(res=>{audioEl.pause();audioEl=new Audio(src);Avatar.attach(audioEl);audioEl.onended=()=>res(true);audioEl.onerror=()=>res(false);
   audioEl.play().catch(()=>res(false));});}
 async function elevenTTS(text){
@@ -380,7 +380,9 @@ function browserTTS(text){return new Promise(res=>{if(!('speechSynthesis' in win
   speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='ar-AE';if(ttsVoice)u.voice=ttsVoice;u.rate=.95;
   u.onend=res;u.onerror=res;speechSynthesis.speak(u);});}
 /* say(text, clip): show text, play the recorded clip if it exists, else ElevenLabs live voice, else browser voice */
-async function say(text, clip){
+let sayChain=Promise.resolve(), speakEndAt=0, askedAt=0, lastHeard={t:'',at:0};
+function say(text, clip){ const p=sayChain.then(()=>sayNow(text,clip)); sayChain=p.catch(()=>{}); return p; }
+async function sayNow(text, clip){
   $('bubble').textContent=text; pauseEars(); setTalking(true);
   let done=false;
   if(clip && (HAS.has(clip) || clip.startsWith('audio/x-'))) done = await playFile(clip);
@@ -390,14 +392,14 @@ async function say(text, clip){
 }
 
 /* ---------- quiz flow ---------- */
-async function askNext(prefix,pclip){
+async function askNext(prefix,pclip){ pending=null;
   const p = pool();
   if(!p.length){ S.cur=null; await say((prefix?prefix+' ':'')+'خلصت أسئلة هذا القسم! تقدر تختار قسم ثاني أو تقول مع السلامة.','audio/x-done.mp3'); return; }
   const q = p[Math.floor(Math.random()*p.length)]; S.cur=q; asked.add(q.id); updateScore(); Avatar.react('lean');
   $('qNo').textContent='السؤال '+q.id; $('qCat').textContent=DATA.cats[q.c]; $('qText').textContent=q.q;
   const a=$('ans'); a.classList.remove('open'); $('ansText').textContent='الإجابة مخفية، تظهر فقط عند الإجابة الصحيحة';
   if(prefix) await say(prefix,pclip||null);
-  await say(q.q, 'audio/q'+pad(q.id)+'.mp3');
+  await say(q.q, 'audio/q'+pad(q.id)+'.mp3'); askedAt=performance.now(); pending=null; lastHeard={t:'',at:0};
 }
 async function onCorrect(){ Avatar.react('yes');
   const q=S.cur; S.ok++; S.tries++; updateScore();
@@ -451,6 +453,10 @@ async function handle(input){
   if(!alts.length||!S.on) return;
   if(S.busy){ pending=alts; return; }
   const said=alts[0];
+  const key=norm(said).trim(), nowT=performance.now();
+  if(key && lastHeard.t && nowT-lastHeard.at<6000 && (key===lastHeard.t || key.includes(lastHeard.t) || lastHeard.t.includes(key))) return;   // same sentence reported twice
+  lastHeard={t:key,at:nowT};
+  if(S.cur && nowT-askedAt<1800 && alts.map(intentOf).includes('next')) return;   // leftover "give me a question" right after asking
   S.busy=true; $('heard').innerHTML='سمعتك تقول: <b></b>'; $('heard').querySelector('b').textContent=said;
   try{
     const its=alts.map(intentOf); const it=its.includes('bye')?'bye':its.includes('next')?'next':its[0];
@@ -468,7 +474,7 @@ async function handle(input){
     }
     if(S.cur) await onWrong();
     else await say('حياك الله! إذا تبي نبدأ المسابقة قل لي: عطني السؤال.','audio/x-hint.mp3');
-  } finally { S.busy=false; if(pending&&S.on&&!S.speaking){const p=pending;pending=null;setTimeout(()=>handle(p),0);} resumeEars(); Avatar.setState(S.on?(S.speaking?'talk':'listen'):'idle'); }
+  } finally { S.busy=false; lastHeard.at=Math.min(lastHeard.at, performance.now()-4000); if(pending&&S.on&&!S.speaking){const p=pending;pending=null;setTimeout(()=>handle(p),0);} resumeEars(); Avatar.setState(S.on?(S.speaking?'talk':'listen'):'idle'); }
 }
 
 /* ---------- speech in ---------- */
@@ -479,7 +485,7 @@ function initRec(){
   const r=new SR(); r.lang=$('srLang').value||'ar-AE'; r.continuous=true; r.interimResults=true; r.maxAlternatives=5;
   r.onstart=()=>{earsRunning=true; $('diag').textContent=''; if(!S.speaking) $('micTxt').textContent='راشد يسمعك…';}; r.onsoundstart=()=>Avatar.heard(.4); r.onspeechstart=()=>Avatar.heard(.7);
   r.onresult=e=>{
-    if(S.speaking) return;
+    if(S.speaking || performance.now()-speakEndAt<700) return;   // ignore Rashid's own voice tail
     let inter='';
     for(let i=e.resultIndex;i<e.results.length;i++){
       const res=e.results[i];
@@ -491,7 +497,7 @@ function initRec(){
     if(inter){ $('heard').textContent='… '+inter; Avatar.heard(.3);
       if(inter!==lastInter){ lastInter=inter; clearTimeout(stallTimer);
         // Chrome sometimes holds the final result: act on a stable partial after a short pause
-        stallTimer=setTimeout(()=>{ const t=lastInter; lastInter=''; if(t&&!S.speaking&&!S.busy){ pauseEars(); handle([t]); } },1400); } }
+        stallTimer=setTimeout(()=>{ const t=lastInter; lastInter=''; if(t&&!S.speaking&&!S.busy&&performance.now()-speakEndAt>700){ pauseEars(); handle([t]); } },1400); } }
   };
   r.onerror=e=>{ if(e.error!=='aborted'&&e.error!=='no-speech') $('diag').textContent='تشخيص الميكروفون: '+e.error+' · '+location.protocol.replace(':','');
     if(e.error==='not-allowed'||e.error==='service-not-allowed'){ earsWanted=false; micUnavailable(); }
