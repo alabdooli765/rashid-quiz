@@ -364,12 +364,20 @@ function updateScore(){$('sOk').textContent=S.ok;$('sTry').textContent=S.tries;$
   mk(-1,'كل الأقسام'); DATA.cats.forEach((c,i)=>mk(i,c));})();
 
 /* ---------- speech out ---------- */
-let audioEl = new Audio(); let ttsVoice=null;
+const audioEl = new Audio(); audioEl.preload='auto'; let audioAttached=false; let ttsVoice=null;   // one player for every clip (keeps mobile autoplay unlocked)
 function pickVoice(){const vs=speechSynthesis.getVoices();ttsVoice=vs.find(v=>/ar[-_]AE/i.test(v.lang))||vs.find(v=>/^ar/i.test(v.lang))||null;}
 if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
 function setTalking(on){S.speaking=on; if(!on) speakEndAt=performance.now();Avatar.setState(on?'talk':(S.on?(S.busy?'think':'listen'):'idle'));const m=$('mic');m.classList.toggle('speak',on);m.classList.toggle('listen',!on&&S.on);$('micTxt').textContent=on?'راشد يتكلم…':'راشد يسمعك…';}
-function playFile(src){return new Promise(res=>{audioEl.pause();audioEl=new Audio(src);Avatar.attach(audioEl);audioEl.onended=()=>res(true);audioEl.onerror=()=>res(false);
-  audioEl.play().catch(()=>res(false));});}
+function playFile(src){return new Promise(res=>{
+  let done=false, guard=null; const fin=ok=>{ if(done) return; done=true; clearTimeout(guard); audioEl.onended=audioEl.onerror=audioEl.onloadedmetadata=null; res(ok); };
+  if(!audioAttached){ Avatar.attach(audioEl); audioAttached=true; }
+  audioEl.onended=()=>fin(true); audioEl.onerror=()=>fin(false);
+  // safety net: if the browser never reports the end, finish shortly after the clip's real length
+  audioEl.onloadedmetadata=()=>{ const d=isFinite(audioEl.duration)?audioEl.duration:12; clearTimeout(guard); guard=setTimeout(()=>fin(true),(d+1.2)*1000); };
+  guard=setTimeout(()=>fin(false),15000);
+  audioEl.src=src; audioEl.currentTime=0;
+  audioEl.play().catch(()=>fin(false));
+});}
 async function elevenTTS(text){
   const key=$('elKey').value.trim(), voice=$('elVoice').value.trim(); if(!key||!voice) return false;
   try{const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+encodeURIComponent(voice)+'?output_format=mp3_44100_128',{method:'POST',
@@ -400,6 +408,7 @@ async function askNext(prefix,pclip){ pending=null;
   const a=$('ans'); a.classList.remove('open'); $('ansText').textContent='الإجابة مخفية، تظهر فقط عند الإجابة الصحيحة';
   if(prefix) await say(prefix,pclip||null);
   await say(q.q, 'audio/q'+pad(q.id)+'.mp3'); askedAt=performance.now(); pending=null; lastHeard={t:'',at:0};
+  $('heard').innerHTML='<b>دورك! جاوب الحين…</b>';
 }
 async function onCorrect(){ Avatar.react('yes');
   const q=S.cur; S.ok++; S.tries++; updateScore();
