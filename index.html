@@ -1,5 +1,10 @@
 <title>مسابقة راشد</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="راشد">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0d0c0a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
 <style>
@@ -99,6 +104,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;bo
 .dot{width:12px;height:12px;border-radius:50%;background:var(--muted)}
 .mic.listen .dot{background:var(--no);animation:blink 1s infinite}
 .mic.speak .dot{background:var(--gold)}
+.talk{appearance:none;border:0;cursor:pointer;font:inherit;font-weight:700;font-size:18px;color:var(--ink);background:linear-gradient(180deg,var(--gold-soft),var(--gold));padding:14px 26px;border-radius:999px;display:flex;gap:10px;align-items:center;box-shadow:0 0 0 6px rgba(201,162,76,.14);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.talk.on{background:var(--no);color:#fff;animation:blink 1s infinite}
 .lvl{width:54px;height:6px;border-radius:3px;background:var(--line);overflow:hidden}.lvl i{display:block;height:100%;width:0;background:var(--gold);transition:width .08s}
 @keyframes blink{50%{opacity:.3}}
 .btn{appearance:none;cursor:pointer;font-family:var(--f-body);font-size:15px;font-weight:600;color:var(--kandura);background:transparent;border:1px solid var(--line);padding:10px 18px;border-radius:999px}
@@ -171,6 +178,7 @@ details.set input{font:inherit;color:var(--kandura);background:var(--panel);bord
     </button>
     <div class="live" id="live" hidden>
       <div class="mic" id="mic"><span class="dot"></span><span id="micTxt">راشد يسمعك…</span><span class="lvl" aria-hidden="true"><i id="lvl"></i></span></div>
+      <button class="talk" id="talkBtn" type="button" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/></svg><span id="talkTxt">اضغط وجاوب</span></button>
       <button class="btn" id="nextBtn" type="button">غيّر السؤال</button>
       <button class="btn end" id="endBtn" type="button">مع السلامة</button>
     </div>
@@ -364,13 +372,19 @@ function updateScore(){$('sOk').textContent=S.ok;$('sTry').textContent=S.tries;$
   mk(-1,'كل الأقسام'); DATA.cats.forEach((c,i)=>mk(i,c));})();
 
 /* ---------- speech out ---------- */
-const audioEl = new Audio(); audioEl.preload='auto'; let audioAttached=false; let ttsVoice=null;   // one player for every clip (keeps mobile autoplay unlocked)
+const IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+const SILENT = 'data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA//NwwAAAAAAAAAAAAEluZm8AAAAPAAAACAAAA/oAR0dHR0dHR0dHR0dHYmJiYmJiYmJiYmJifHx8fHx8fHx8fHx8fJaWlpaWlpaWlpaWlrGxsbGxsbGxsbGxsbHLy8vLy8vLy8vLy8vl5eXl5eXl5eXl5eXl////////////////AAAAAExhdmM2MC4zMQAAAAAAAAAAAAAAACQC1AAAAAAAAAP6yysejgAAAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsRbAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NCxKMAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NAxKQAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/80LEowAAA0gAAAAAVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/80DEpAAAA0gAAAAAVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsSjAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVQ==';
+const audioEl = new Audio(); audioEl.preload='auto'; audioEl.setAttribute('playsinline',''); audioEl.playsInline=true;
+function unlockAudio(){ // must run inside the tap itself: iPhone only lets a page play sound after a direct touch
+  try{ audioEl.src=SILENT; const p=audioEl.play(); if(p) p.catch(()=>{}); }catch(_){}
+  try{ if('speechSynthesis' in window){ const u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u); } }catch(_){}
+} let audioAttached=false; let ttsVoice=null;   // one player for every clip (keeps mobile autoplay unlocked)
 function pickVoice(){const vs=speechSynthesis.getVoices();ttsVoice=vs.find(v=>/ar[-_]AE/i.test(v.lang))||vs.find(v=>/^ar/i.test(v.lang))||null;}
 if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
-function setTalking(on){S.speaking=on; if(!on) speakEndAt=performance.now();Avatar.setState(on?'talk':(S.on?(S.busy?'think':'listen'):'idle'));const m=$('mic');m.classList.toggle('speak',on);m.classList.toggle('listen',!on&&S.on);$('micTxt').textContent=on?'راشد يتكلم…':'راشد يسمعك…';}
+function setTalking(on){S.speaking=on; setTimeout(()=>updateTalk&&updateTalk(),0); if(!on) speakEndAt=performance.now();Avatar.setState(on?'talk':(S.on?(S.busy?'think':'listen'):'idle'));const m=$('mic');m.classList.toggle('speak',on);m.classList.toggle('listen',!on&&S.on);$('micTxt').textContent=on?'راشد يتكلم…':'راشد يسمعك…';}
 function playFile(src){return new Promise(res=>{
   let done=false, guard=null; const fin=ok=>{ if(done) return; done=true; clearTimeout(guard); audioEl.onended=audioEl.onerror=audioEl.onloadedmetadata=null; res(ok); };
-  if(!audioAttached){ Avatar.attach(audioEl); audioAttached=true; }
+  if(!audioAttached && !IOS){ Avatar.attach(audioEl); audioAttached=true; }
   audioEl.onended=()=>fin(true); audioEl.onerror=()=>fin(false);
   // safety net: if the browser never reports the end, finish shortly after the clip's real length
   audioEl.onloadedmetadata=()=>{ const d=isFinite(audioEl.duration)?audioEl.duration:12; clearTimeout(guard); guard=setTimeout(()=>fin(true),(d+1.2)*1000); };
@@ -391,7 +405,7 @@ function browserTTS(text){return new Promise(res=>{if(!('speechSynthesis' in win
 let sayChain=Promise.resolve(), speakEndAt=0, askedAt=0, lastHeard={t:'',at:0};
 function say(text, clip){ const p=sayChain.then(()=>sayNow(text,clip)); sayChain=p.catch(()=>{}); return p; }
 async function sayNow(text, clip){
-  $('bubble').textContent=text; pauseEars(); setTalking(true);
+  $('bubble').textContent=text; if(!(IOS && startedByTap && !micOkOnce)) pauseEars(); setTalking(true);
   let done=false;
   if(clip && (HAS.has(clip) || clip.startsWith('audio/x-'))) done = await playFile(clip);
   if(!done) done = await elevenTTS(text);
@@ -488,11 +502,11 @@ async function handle(input){
 
 /* ---------- speech in ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-let netErr=0, rec=null, earsWanted=false, earsRunning=false, stallTimer=null, lastInter='', watchdog=null;
+let micOkOnce=false, tapMode=false, startedByTap=false, netErr=0, rec=null, earsWanted=false, earsRunning=false, stallTimer=null, lastInter='', watchdog=null;
 function initRec(){
   if(!SR) return null;
-  const r=new SR(); r.lang=$('srLang').value||'ar-AE'; r.continuous=true; r.interimResults=true; r.maxAlternatives=5;
-  r.onstart=()=>{earsRunning=true; $('diag').textContent=''; if(!S.speaking) $('micTxt').textContent='راشد يسمعك…';}; r.onsoundstart=()=>Avatar.heard(.4); r.onspeechstart=()=>Avatar.heard(.7);
+  const r=new SR(); r.lang=$('srLang').value||'ar-AE'; r.continuous=!IOS; r.interimResults=true; r.maxAlternatives=5;
+  r.onstart=()=>{earsRunning=true; micOkOnce=true; $('diag').textContent=''; updateTalk(); if(!S.speaking) $('micTxt').textContent='راشد يسمعك…';}; r.onsoundstart=()=>Avatar.heard(.4); r.onspeechstart=()=>Avatar.heard(.7);
   r.onresult=e=>{
     if(S.speaking || performance.now()-speakEndAt<700) return;   // ignore Rashid's own voice tail
     let inter='';
@@ -509,18 +523,25 @@ function initRec(){
         stallTimer=setTimeout(()=>{ const t=lastInter; lastInter=''; if(t&&!S.speaking&&!S.busy&&performance.now()-speakEndAt>700){ pauseEars(); handle([t]); } },1400); } }
   };
   r.onerror=e=>{ if(e.error!=='aborted'&&e.error!=='no-speech') $('diag').textContent='تشخيص الميكروفون: '+e.error+' · '+location.protocol.replace(':','');
-    if(e.error==='not-allowed'||e.error==='service-not-allowed'){ earsWanted=false; micUnavailable(); }
+    if((e.error==='not-allowed'||e.error==='service-not-allowed') && micOkOnce && !startedByTap){ tapMode=true; earsRunning=false; updateTalk(); }
+    else if(e.error==='not-allowed'||e.error==='service-not-allowed'){ earsWanted=false; micUnavailable(); }
     else if(e.error==='audio-capture'){ $('micTxt').textContent='لا يوجد ميكروفون متصل'; }
     else if(e.error==='network'){ netErr++; if(netErr>=2){ $('micTxt').textContent='خدمة تحويل الكلام لا تصل للإنترنت'; $('note').textContent='التعرّف على الصوت يحتاج اتصالاً بالإنترنت، ويبدو أن الشبكة تمنعه. جرّب شبكة أخرى أو متصفح Edge، أو اكتب إجابتك في المربع.'; $('typeForm').hidden=false; } }
   };
-  r.onend=()=>{earsRunning=false; if(earsWanted&&S.on&&!S.speaking&&!S.busy) setTimeout(()=>{ if(!earsRunning&&!S.speaking){try{r.start();}catch(_){}} },60);};
+  r.onend=()=>{earsRunning=false; startedByTap=false; updateTalk(); if(earsWanted&&!tapMode&&S.on&&!S.speaking&&!S.busy) setTimeout(()=>{ if(!earsRunning&&!S.speaking){try{r.start();}catch(_){ tapMode=IOS; updateTalk(); }} },IOS?250:60);};
   return r;
 }
 function pauseEars(){ clearTimeout(stallTimer); lastInter=''; if(rec&&earsRunning){try{rec.abort();}catch(_){}} }
-function resumeEars(){ if(rec&&earsWanted&&S.on&&!earsRunning&&!S.speaking){try{rec.start();}catch(_){}} }
+function resumeEars(){ updateTalk(); if(tapMode) return; if(rec&&earsWanted&&S.on&&!earsRunning&&!S.speaking){try{rec.start();}catch(_){ if(IOS){ tapMode=true; updateTalk(); } }} }
+function updateTalk(){ const b=$('talkBtn'); if(!b) return;
+  const turn=S.on&&!S.speaking&&!S.busy&&rec&&earsWanted;
+  b.hidden=!(tapMode&&turn); b.classList.toggle('on',earsRunning); $('talkTxt').textContent=earsRunning?'أسمعك… تكلّم':'اضغط وجاوب'; }
+function talkTap(){ if(!rec||S.speaking||S.busy) return; if(earsRunning){ try{rec.stop();}catch(_){} return; }
+  startedByTap=true; try{ rec.start(); }catch(_){ try{rec.abort();}catch(__){} setTimeout(()=>{try{rec.start();}catch(___){}},200); } }
 /* live microphone level: lights Rashid's "listening" cues the moment you speak */
 let micStream=null, micAn=null, micBuf=null, micRAF=0;
 async function startMicMeter(){
+  if(IOS) return;
   try{
     micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
     const ac=new (window.AudioContext||window.webkitAudioContext)(); const src=ac.createMediaStreamSource(micStream);
@@ -539,9 +560,10 @@ function micUnavailable(){
 
 /* ---------- start / end ---------- */
 async function startCall(){
-  S.on=true; Avatar.ensureCtx(); $('startBtn').hidden=true; $('live').hidden=false; $('typeForm').hidden=false;
-  try{ await navigator.wakeLock?.request('screen'); }catch(_){}
+  unlockAudio(); S.on=true; if(!IOS) Avatar.ensureCtx(); $('startBtn').hidden=true; $('live').hidden=false; $('typeForm').hidden=false;
+  try{ navigator.wakeLock?.request('screen').catch(()=>{}); }catch(_){}
   rec=initRec();
+  if(rec && IOS){ try{ startedByTap=true; rec.start(); }catch(_){} }   // permission prompt happens inside the tap
   if(rec){ earsWanted=true; startMicMeter();
     clearInterval(watchdog); watchdog=setInterval(()=>{ if(earsWanted&&S.on&&!S.speaking&&!S.busy&&!earsRunning) resumeEars(); },1500);
   } else { micUnavailable(); }
@@ -555,6 +577,7 @@ async function endCall(spoken){
   $('qNo').textContent='بانتظار أول سؤال'; $('qText').textContent='قل «عطني السؤال» وأنا أسألك.';
 }
 $('startBtn').onclick=startCall;
+$('talkBtn').onclick=talkTap;
 $('endBtn').onclick=()=>{ if(!S.busy) handle('مع السلامة'); else endCall(false); };
 $('nextBtn').onclick=()=>{ if(!S.busy) handle('عطني السؤال'); };
 $('typeIn').addEventListener('input',()=>Avatar.heard(.3));
