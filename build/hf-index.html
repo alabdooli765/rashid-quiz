@@ -213,7 +213,7 @@ const HAS = new Set(["audio/a01.mp3", "audio/a02.mp3", "audio/a03.mp3", "audio/a
 const Avatar = (() => {
   const box = document.getElementById('rashidBox');
   const stage = document.getElementById('rashidVideos');
-  const base = (window.RASHID_VIDEO_BASE || 'video/');
+  const base = (window.RASHID_VIDEO_BASE || 'video/'); const MAP = window.RASHID_VIDEO_MAP || {};
   const NAMES = ['idle','talk','listen','yes','no'];
   const vids = {};
   let ok = true;
@@ -221,7 +221,7 @@ const Avatar = (() => {
     const v = document.createElement('video');
     v.muted = true; v.defaultMuted = true; v.playsInline = true; v.setAttribute('playsinline',''); v.setAttribute('muted','');
     v.preload = 'auto'; v.loop = (n==='idle'||n==='talk'||n==='listen');
-    v.poster = base + 'poster.jpg'; v.src = base + n + '.mp4';
+    v.poster = MAP.poster || (base + 'poster.jpg'); v.src = MAP[n] || (base + n + '.mp4');
     v.className = 'rv' + (n==='idle' ? ' on' : '');
     v.onerror = () => { ok = false; box.classList.add('novideo'); };
     stage.appendChild(v); vids[n] = v;
