@@ -38,11 +38,11 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;bo
 
 .stage{flex:1;display:grid;grid-template-columns:minmax(220px,340px) 1fr;gap:28px;align-items:center}
 .rashid{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px}
-.portrait{position:relative;height:min(62vh,640px);width:auto;max-width:100%;aspect-ratio:602/1274;border-radius:160px 160px 18px 18px;overflow:hidden;background:#86817f;
+.portrait{position:relative;height:min(62vh,640px);width:auto;max-width:100%;aspect-ratio:768/1344;border-radius:160px 160px 18px 18px;overflow:hidden;background:#221d16;
   border:2px solid var(--gold);box-shadow:0 0 0 6px var(--ink),0 0 0 7px var(--line)}
 .portrait canvas{width:100%;height:100%;display:block;object-fit:contain}
 .avwrap{position:relative;display:grid;place-items:center;max-width:100%}
-.portrait canvas{object-fit:cover}
+.rvs{position:absolute;inset:0}.rv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .28s ease}.rv.on{opacity:1}.rimg{display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.novideo .rimg{display:block}.novideo .rvs{display:none}
 .rings{position:absolute;inset:-14px;pointer-events:none;border-radius:200px 200px 26px 26px}
 .rings i{position:absolute;inset:0;border-radius:inherit;border:2px solid var(--gold);opacity:0}
 [data-state="listen"] .rings i{animation:ring 2.4s ease-out infinite}
@@ -147,7 +147,7 @@ details.set input{font:inherit;color:var(--kandura);background:var(--panel);bord
     <section class="rashid" id="rashidBox" data-state="idle">
       <div class="avwrap">
         <div class="rings" aria-hidden="true"><i></i><i></i><i></i></div>
-        <div class="portrait"><canvas id="rashidCanvas" role="img" aria-label="راشد، الشخصية الافتراضية لمحاكم ونيابات عجمان"></canvas></div>
+        <div class="portrait"><div id="rashidVideos" class="rvs" role="img" aria-label="راشد، الشخصية الافتراضية لمحاكم ونيابات عجمان"></div><img class="rimg" src="rashid-full-hd.jpg" alt=""></div>
         <div class="think" aria-hidden="true"><i></i><i></i><i></i></div>
         <div class="spark" id="spark" aria-hidden="true"><b style="--a:0deg"></b><b style="--a:30deg"></b><b style="--a:60deg"></b><b style="--a:90deg"></b><b style="--a:120deg"></b><b style="--a:150deg"></b><b style="--a:180deg"></b><b style="--a:210deg"></b><b style="--a:240deg"></b><b style="--a:270deg"></b><b style="--a:300deg"></b><b style="--a:330deg"></b></div>
       </div>
@@ -204,113 +204,65 @@ details.set input{font:inherit;color:var(--kandura);background:var(--panel);bord
   </section>
 </div>
 
+<script>window.RASHID_VIDEO_BASE="https://rashid-ajman-courts.higgsfield.app/quiz/video/";</script>
 <script>
 document.documentElement.setAttribute("dir","rtl");document.documentElement.setAttribute("lang","ar");
 const DATA = {"cats": ["قيام الاتحاد وتاريخ الإمارات", "البحر والغوص واللؤلؤ", "الحرف والمهن الإماراتية القديمة", "حياة أهل الإمارات في الماضي", "العادات والتقاليد الإماراتية", "الأكلات الشعبية الإماراتية", "الفنون والألعاب الشعبية", "جغرافية الإمارات والبيئة القديمة"], "qs": [{"id": 1, "c": 0, "q": "متى أُعلن قيام دولة الإمارات العربية المتحدة؟", "a": "2 ديسمبر 1971", "k": "1971|71|واحد وسبعين;ديسمبر|كانون الاول", "m": 1}, {"id": 2, "c": 0, "q": "من هو مؤسس دولة الإمارات وأول رئيس لها؟", "a": "الشيخ زايد بن سلطان آل نهيان، طيب الله ثراه", "k": "زايد", "m": 1}, {"id": 3, "c": 0, "q": "كم إمارة شاركت في إعلان الاتحاد أول مرة؟", "a": "6 إمارات", "k": "6|ست|سته|ستة", "m": 1}, {"id": 4, "c": 0, "q": "ما الإمارة التي انضمت إلى الاتحاد لاحقاً؟", "a": "رأس الخيمة", "k": "راس الخيمه|رأس الخيمة", "m": 1}, {"id": 5, "c": 0, "q": "متى انضمت رأس الخيمة إلى الاتحاد؟", "a": "10 فبراير 1972", "k": "1972|72|اثنين وسبعين", "m": 1}, {"id": 6, "c": 0, "q": "أين أُعلن قيام دولة الإمارات؟", "a": "دار الاتحاد في دبي", "k": "دار الاتحاد|دبي", "m": 1}, {"id": 7, "c": 0, "q": "من كان أول نائب لرئيس دولة الإمارات؟", "a": "الشيخ راشد بن سعيد آل مكتوم", "k": "راشد", "m": 1}, {"id": 8, "c": 0, "q": "أين التقى الشيخ زايد والشيخ راشد عام 1968 للاتفاق على تأسيس اتحاد؟", "a": "منطقة السميح", "k": "السميح|سميح", "m": 1}, {"id": 9, "c": 0, "q": "ماذا كان يُطلق على الإمارات قبل الاتحاد؟", "a": "الإمارات المتصالحة أو إمارات الساحل المتصالح", "k": "المتصالحه|متصالحه|الساحل المتصالح|ساحل عمان", "m": 1}, {"id": 10, "c": 0, "q": "من صمم علم دولة الإمارات؟", "a": "عبدالله محمد المعينة", "k": "المعينه|معينه|عبدالله محمد", "m": 1}, {"id": 11, "c": 0, "q": "في أي عام تولى الشيخ زايد حكم إمارة أبوظبي؟", "a": "1966", "k": "1966|66|ست وستين", "m": 1}, {"id": 12, "c": 0, "q": "ما الإمارات الست التي أعلنت الاتحاد عام 1971؟", "a": "أبوظبي، دبي، الشارقة، عجمان، أم القيوين، الفجيرة", "k": "ابوظبي|ابو ظبي;دبي;الشارقه;عجمان;ام القيوين;الفجيره", "m": 4}, {"id": 13, "c": 1, "q": "من هو النوخذة؟", "a": "قائد السفينة والمسؤول عن البحارة", "k": "قائد|ربان|قبطان|كابتن|ريس|رئيس|مسؤول السفينه", "m": 1}, {"id": 14, "c": 1, "q": "من هو الغيص؟", "a": "الشخص الذي يغوص لاستخراج المحار", "k": "يغوص|غواص|الغوص|يغطس|غطس|ينزل البحر", "m": 1}, {"id": 15, "c": 1, "q": "من هو السيب؟", "a": "الشخص الذي يسحب الغواص بالحبل", "k": "يسحب|سحب|يجر|يشد|الحبل|حبل", "m": 1}, {"id": 16, "c": 1, "q": "من هو النهّام؟", "a": "المغني الذي يردد الأهازيج البحرية", "k": "يغني|مغني|المغني|اهازيج|ينشد|منشد|الغناء|يطرب|مطرب|يردد", "m": 1}, {"id": 17, "c": 1, "q": "من هو الطوّاش؟", "a": "تاجر اللؤلؤ", "k": "تاجر|يشتري|يبيع|تجاره|تجار", "m": 1}, {"id": 18, "c": 1, "q": "ما المقصود بالهيرات؟", "a": "مناطق وجود محار اللؤلؤ", "k": "مناطق|اماكن|مكان|مواقع|مغاصات|مغاص;المحار|محار|اللؤلؤ|لؤلؤ|لولو|اللولو", "m": 2}, {"id": 19, "c": 1, "q": "ما هو الفطام؟", "a": "مشبك يوضع على أنف الغواص لمنع دخول الماء", "k": "مشبك|ملقط|الانف|انف|خشم|الخشم|يسد|يمنع الماء", "m": 1}, {"id": 20, "c": 1, "q": "ما هو الديين؟", "a": "كيس يستخدمه الغواص لجمع المحار", "k": "كيس|سله|شنطه|يجمع|يحط فيه", "m": 1}, {"id": 21, "c": 1, "q": "ما معنى الدشّة عند أهل البحر؟", "a": "بداية موسم الغوص", "k": "بدايه|بدء|بدايت|يبدا|يبدأ|انطلاق|اول الموسم|دخول", "m": 1}, {"id": 22, "c": 1, "q": "ما معنى القفّال؟", "a": "عودة سفن الغوص بعد انتهاء الموسم", "k": "عوده|رجوع|يرجعون|يرجع|العوده|نهايه|انتهاء|ختام|الرجعه", "m": 1}, {"id": 23, "c": 1, "q": "ما هو السنبوك؟", "a": "نوع من السفن الخشبية التقليدية", "k": "سفينه|سفن|مركب|قارب|محمل|سفينة|بوم", "m": 1}, {"id": 24, "c": 1, "q": "ما هو القرقور؟", "a": "مصيدة تقليدية لصيد الأسماك", "k": "مصيده|صيد|فخ|قفص|اسماك|سمك", "m": 1}, {"id": 25, "c": 2, "q": "من هو الجلّاف؟", "a": "صانع السفن الخشبية", "k": "صانع|يصنع|يبني|صناعه|نجار|بناء|يسوي;سفن|السفن|سفينه|مراكب|قوارب|المحامل|اللنجات", "m": 2}, {"id": 26, "c": 2, "q": "ما هي حرفة السدو؟", "a": "نسج الصوف ووبر الإبل وشعر الماعز", "k": "نسج|نسيج|حياكه|يحيك|ينسج|غزل|صوف", "m": 1}, {"id": 27, "c": 2, "q": "ما هي حرفة التلي؟", "a": "صناعة شرائط زخرفية لتزيين الملابس النسائية", "k": "شرائط|شريط|تزيين|زخرف|زخرفه|خيوط|تطريز|الملابس|ملابس", "m": 1}, {"id": 28, "c": 2, "q": "ما هي حرفة الخوص؟", "a": "صناعة الأدوات من سعف النخيل", "k": "سعف|النخيل|نخل|النخل|خوص", "m": 1}, {"id": 29, "c": 2, "q": "ما هو السرود؟", "a": "مفرش دائري مصنوع من الخوص يوضع عليه الطعام", "k": "مفرش|سفره|سماط|يوضع عليه الطعام|يحط عليه الاكل", "m": 1}, {"id": 30, "c": 2, "q": "ما هي المهفّة؟", "a": "مروحة يدوية تُصنع غالباً من سعف النخيل", "k": "مروحه|مهفه|تهويه|هواء|هوا|يهف", "m": 1}, {"id": 31, "c": 2, "q": "ما هو المندوس؟", "a": "صندوق خشبي مزخرف لحفظ الملابس والمقتنيات", "k": "صندوق|صندوج", "m": 1}, {"id": 32, "c": 2, "q": "من هو المطوّع؟", "a": "معلم القرآن الكريم في الماضي", "k": "معلم|مدرس|يعلم|يدرس|القران|قران", "m": 1}, {"id": 33, "c": 2, "q": "من هو الطارش؟", "a": "الشخص الذي ينقل الرسائل والأخبار بين الناس", "k": "رسائل|رساله|الرسائل|الاخبار|اخبار|ينقل|ساعي|مرسال|البريد|الخبر", "m": 1}, {"id": 34, "c": 2, "q": "ما مهنة الحدّاد قديماً؟", "a": "صناعة وإصلاح الأدوات الحديدية", "k": "حديد|الحديد|حديديه|معدن|معادن", "m": 1}, {"id": 35, "c": 3, "q": "ما معنى الفريج؟", "a": "الحي السكني الذي تعيش فيه مجموعة من الأسر", "k": "حي|الحي|حاره|الحاره|سكني|سكنيه|الجيران|منطقه", "m": 1}, {"id": 36, "c": 3, "q": "ما هو العريش؟", "a": "مسكن تقليدي يُبنى من سعف وجريد النخيل", "k": "سعف|النخيل|جريد|نخل|خوص", "m": 1}, {"id": 37, "c": 3, "q": "ما هو البرجيل؟", "a": "برج هواء يستخدم لتهوية وتبريد المنازل", "k": "برج|تهويه|تبريد|هواء|هوا|تكييف|ملقف|يبرد", "m": 1}, {"id": 38, "c": 3, "q": "ما معنى الطوي؟", "a": "بئر الماء", "k": "بئر|بير|البير|البئر", "m": 1}, {"id": 39, "c": 3, "q": "ما هو الفلج؟", "a": "نظام تقليدي لنقل وتوزيع مياه الري", "k": "ري|الري|مياه|ماء|الماي|قنوات|قناه|سقي|توزيع", "m": 1}, {"id": 40, "c": 3, "q": "ما المقصود بالمقيظ؟", "a": "الانتقال إلى الواحات والمناطق الزراعية صيفاً", "k": "انتقال|ينتقلون|ينتقل|الصيف|صيف|المصيف|القيظ|واحات|الواحات|المزارع|الزراعه|ليوا", "m": 1}, {"id": 41, "c": 3, "q": "لماذا كان المجلس مهماً في حياة الإماراتيين؟", "a": "لاستقبال الضيوف والتشاور وحل المشكلات", "k": "استقبال|الضيوف|ضيوف|التشاور|تشاور|مشاوره|حل المشاكل|المشكلات|اجتماع|يجتمعون|سوالف|السوالف", "m": 1}, {"id": 42, "c": 3, "q": "ما هي الدلّة؟", "a": "إناء تحضير أو تقديم القهوة العربية", "k": "القهوه|قهوه", "m": 1}, {"id": 43, "c": 3, "q": "ما هو المنز؟", "a": "مهد تقليدي للأطفال", "k": "مهد|سرير|كاروه|هزاز|طفل|اطفال|الطفل|رضيع|الياهل|اليهال", "m": 1}, {"id": 44, "c": 3, "q": "ما المقصود بحوش البيت؟", "a": "الساحة الداخلية للمنزل", "k": "ساحه|الساحه|فناء|وسط البيت|داخليه|حوي", "m": 1}, {"id": 45, "c": 4, "q": "ما معنى السنع الإماراتي؟", "a": "الآداب والأخلاق وأصول التعامل مع الآخرين", "k": "الاداب|اداب|الاخلاق|اخلاق|اصول|تعامل|الاحترام|احترام|العادات|السلوك|سلوك|الذوق", "m": 1}, {"id": 46, "c": 4, "q": "ما هي الفوالة؟", "a": "ما يُقدم للضيف من طعام خفيف وحلوى وفواكه", "k": "ضيف|الضيف|الضيوف|ضيافه|حلوى|حلويات|فواكه|فاكهه|اكل خفيف|طعام خفيف", "m": 1}, {"id": 47, "c": 4, "q": "بأي يد تُقدم القهوة العربية عادةً؟", "a": "اليد اليمنى", "k": "اليمنى|اليمين|يمين|يمنى|ايمن", "m": 1}, {"id": 48, "c": 4, "q": "ماذا يفعل الضيف عندما يكتفي من القهوة؟", "a": "يهز الفنجان", "k": "يهز|هز|يحرك|ينفض|يرج|يهزه|تهز", "m": 1}, {"id": 49, "c": 4, "q": "لماذا يستخدم الإماراتيون العود والبخور؟", "a": "للتطيّب وتعطير البيوت والملابس واستقبال الضيوف", "k": "تطيب|طيب|تعطير|ريحه|رائحه|عطر|تبخير|يبخرون|ضيوف|الضيوف", "m": 1}, {"id": 50, "c": 4, "q": "ما هي مناسبة حق الليلة؟", "a": "احتفال تراثي للأطفال في ليلة النصف من شعبان", "k": "شعبان|النصف|نص شعبان|اطفال|الاطفال", "m": 1}, {"id": 51, "c": 4, "q": "ما هي العيدية؟", "a": "نقود أو هدايا تُقدم للأطفال في العيد", "k": "نقود|فلوس|مال|بيزات|بيسات|هدايا|هديه", "m": 1}, {"id": 52, "c": 4, "q": "ما معنى المير؟", "a": "المؤونة والمواد الغذائية المخزنة للبيت", "k": "المؤونه|مؤونه|المونه|مونه|المواد الغذائيه|طعام|تموين|اغراض البيت|مقاضي|المقاضي|اكل", "m": 1}, {"id": 53, "c": 4, "q": "ما المقصود بالرمسة؟", "a": "الكلام أو الحديث باللهجة الإماراتية", "k": "الكلام|كلام|الحديث|حديث|حجي|سوالف|سالفه|اللهجه|نتكلم", "m": 1}, {"id": 54, "c": 4, "q": "ما معنى الخروفة أو الخراريف؟", "a": "الحكايات الشعبية القديمة", "k": "حكايات|حكايه|قصص|قصه|حكاوي|سوالف", "m": 1}, {"id": 55, "c": 5, "q": "ما هو الهريس؟", "a": "أكلة شعبية تُحضّر من القمح واللحم", "k": "قمح|حب|الحب|القمح", "m": 1}, {"id": 56, "c": 5, "q": "ما هو الثريد؟", "a": "خبز يُشرّب بمرق اللحم أو الخضار", "k": "خبز|الخبز|رقاق|مرق|المرق|مرقه|صالونه|الصالونه", "m": 1}, {"id": 57, "c": 5, "q": "ما هو البلاليط؟", "a": "شعيرية متبلة ومحلاة تُقدم غالباً مع البيض", "k": "شعيريه|شعريه|الشعيريه|الشعريه|معكرونه", "m": 1}, {"id": 58, "c": 5, "q": "ما هو اللقيمات؟", "a": "كرات عجين مقلية تُقدم مع الدبس أو القطر", "k": "عجين|عجينه|كرات|كور|مقليه|مقلي|يقلى|حلوى|زلابيه|دبس", "m": 1}, {"id": 59, "c": 5, "q": "ما هو الخبيص؟", "a": "حلوى شعبية تُحضّر من الدقيق أو السميد والسكر والسمن", "k": "حلوى|حلو|حلويات|طحين|دقيق|سميد|سكر|سمن", "m": 1}, {"id": 60, "c": 5, "q": "ما هو خبز الرقاق؟", "a": "خبز رقيق يُخبز على صاج ساخن", "k": "رقيق|صاج|الصاج|تاوه|التاوه|خفيف|رقاقه", "m": 1}, {"id": 61, "c": 5, "q": "ما هو المالح؟", "a": "سمك محفوظ بالملح", "k": "سمك|السمك|سمج|اسماك;ملح|مملح|الملح|مملوح|مالح", "m": 2}, {"id": 62, "c": 5, "q": "ما هو خبز الخمير؟", "a": "خبز شعبي مصنوع من عجين مخمّر", "k": "مخمر|خميره|الخميره|مختمر|يخمر|تخمير", "m": 1}, {"id": 63, "c": 6, "q": "ما هي العيّالة؟", "a": "فن أداء جماعي تراثي يتضمن الإنشاد والحركة الإيقاعية", "k": "فن|رقصه|اداء|انشاد|جماعي|عصي|العصي|طبول|عرضه", "m": 1}, {"id": 64, "c": 6, "q": "ما هي الرزفة؟", "a": "فن شعبي جماعي يجمع بين الشعر والحركة والإيقاع", "k": "فن|رقصه|اداء|شعر|جماعي|ايقاع|عرضه", "m": 1}, {"id": 65, "c": 6, "q": "ما هي اليولة؟", "a": "فن استعراضي يتضمن تدوير السلاح أو مجسمه", "k": "تدوير|يدور|دوران|السلاح|سلاح|البندقيه|بندقيه|تفق|التفق|العصا|رمي|يرمي", "m": 1}, {"id": 66, "c": 6, "q": "ما هي التغرودة؟", "a": "شعر بدوي يُنشَد بإيقاع تقليدي، ارتبط برحلات الإبل", "k": "شعر|بدوي|ابل|الابل|البل|الهجن|انشاد|ينشد|غناء", "m": 1}, {"id": 67, "c": 6, "q": "ما هي الشلّة؟", "a": "أداء صوتي للشعر الشعبي", "k": "اداء|صوتي|الشعر|شعر|الصوت|انشاد|غناء", "m": 1}, {"id": 68, "c": 6, "q": "ما هي لعبة التيلة؟", "a": "لعبة شعبية تستخدم الكرات الزجاجية الصغيرة", "k": "زجاج|زجاجيه|كرات|كريات|بلي|البلي|الدحل|قلول|الكرات", "m": 1}, {"id": 69, "c": 6, "q": "ما هي لعبة الصقلة؟", "a": "لعبة شعبية تعتمد على الحصى الصغيرة", "k": "حصى|الحصى|حصا|حجاره|احجار|حجر|الحجر|صخور", "m": 1}, {"id": 70, "c": 6, "q": "ما هي الغميضة؟", "a": "لعبة يختبئ فيها اللاعبون ويبحث عنهم أحد المشاركين", "k": "يختبئ|يختبي|اختباء|يتخبى|تخبي|يتخبون|يبحث|يدور عليهم|استغمايه|يغمض|الغمايه", "m": 1}, {"id": 71, "c": 7, "q": "كم عدد إمارات الدولة؟", "a": "7 إمارات", "k": "7|سبع|سبعه", "m": 1}, {"id": 72, "c": 7, "q": "ما عاصمة دولة الإمارات؟", "a": "أبوظبي", "k": "ابوظبي|ابو ظبي", "m": 1}, {"id": 73, "c": 7, "q": "ما أكبر إمارة من حيث المساحة؟", "a": "أبوظبي", "k": "ابوظبي|ابو ظبي", "m": 1}, {"id": 74, "c": 7, "q": "ما أصغر إمارة من حيث المساحة؟", "a": "عجمان", "k": "عجمان", "m": 1}, {"id": 75, "c": 7, "q": "ما أعلى جبل مشهور في الإمارات؟", "a": "جبل جيس في رأس الخيمة", "k": "جيس", "m": 1}, {"id": 76, "c": 7, "q": "ما الشجرة الوطنية لدولة الإمارات؟", "a": "شجرة الغاف", "k": "الغاف|غاف", "m": 1}, {"id": 77, "c": 7, "q": "ما الواحة المشهورة في مدينة العين؟", "a": "واحة العين", "k": "العين", "m": 1}, {"id": 78, "c": 7, "q": "ما هي أشجار القرم؟", "a": "أشجار تنمو في البيئات الساحلية المالحة", "k": "ساحل|الساحل|ساحليه|بحر|البحر|مالحه|المالحه|ملح|مانجروف|القرم", "m": 1}, {"id": 79, "c": 7, "q": "ما الصحراء الكبرى التي تمتد إلى جنوب الإمارات؟", "a": "الربع الخالي", "k": "الربع الخالي|ربع الخالي|الربع", "m": 1}, {"id": 80, "c": 7, "q": "أين تقع واحة ليوا؟", "a": "في منطقة الظفرة بإمارة أبوظبي", "k": "الظفره|ظفره|ابوظبي|ابو ظبي|الغربيه", "m": 1}]};
 const HAS = new Set(["audio/a01.mp3", "audio/a02.mp3", "audio/a03.mp3", "audio/a04.mp3", "audio/a05.mp3", "audio/a06.mp3", "audio/a07.mp3", "audio/a08.mp3", "audio/a09.mp3", "audio/a10.mp3", "audio/a11.mp3", "audio/a12.mp3", "audio/a13.mp3", "audio/a14.mp3", "audio/a15.mp3", "audio/a16.mp3", "audio/a17.mp3", "audio/a18.mp3", "audio/a19.mp3", "audio/a20.mp3", "audio/a21.mp3", "audio/a22.mp3", "audio/a23.mp3", "audio/a24.mp3", "audio/a25.mp3", "audio/a26.mp3", "audio/a27.mp3", "audio/a28.mp3", "audio/a29.mp3", "audio/a30.mp3", "audio/a31.mp3", "audio/a32.mp3", "audio/a33.mp3", "audio/a34.mp3", "audio/a35.mp3", "audio/a36.mp3", "audio/a37.mp3", "audio/a38.mp3", "audio/a39.mp3", "audio/a40.mp3", "audio/a41.mp3", "audio/a42.mp3", "audio/a43.mp3", "audio/a44.mp3", "audio/a45.mp3", "audio/a46.mp3", "audio/a47.mp3", "audio/a48.mp3", "audio/a49.mp3", "audio/a50.mp3", "audio/a51.mp3", "audio/a52.mp3", "audio/a53.mp3", "audio/a54.mp3", "audio/a55.mp3", "audio/a56.mp3", "audio/a57.mp3", "audio/a58.mp3", "audio/a59.mp3", "audio/a60.mp3", "audio/a61.mp3", "audio/a62.mp3", "audio/a63.mp3", "audio/a64.mp3", "audio/a65.mp3", "audio/a66.mp3", "audio/a67.mp3", "audio/a68.mp3", "audio/a69.mp3", "audio/a70.mp3", "audio/a71.mp3", "audio/a72.mp3", "audio/a73.mp3", "audio/a74.mp3", "audio/a75.mp3", "audio/a76.mp3", "audio/a77.mp3", "audio/a78.mp3", "audio/a79.mp3", "audio/a80.mp3", "audio/q01.mp3", "audio/q02.mp3", "audio/q03.mp3", "audio/q04.mp3", "audio/q05.mp3", "audio/q06.mp3", "audio/q07.mp3", "audio/q08.mp3", "audio/q09.mp3", "audio/q10.mp3", "audio/q11.mp3", "audio/q12.mp3", "audio/q13.mp3", "audio/q14.mp3", "audio/q15.mp3", "audio/q16.mp3", "audio/q17.mp3", "audio/q18.mp3", "audio/q19.mp3", "audio/q20.mp3", "audio/q21.mp3", "audio/q22.mp3", "audio/q23.mp3", "audio/q24.mp3", "audio/q25.mp3", "audio/q26.mp3", "audio/q27.mp3", "audio/q28.mp3", "audio/q29.mp3", "audio/q30.mp3", "audio/q31.mp3", "audio/q32.mp3", "audio/q33.mp3", "audio/q34.mp3", "audio/q35.mp3", "audio/q36.mp3", "audio/q37.mp3", "audio/q38.mp3", "audio/q39.mp3", "audio/q40.mp3", "audio/q41.mp3", "audio/q42.mp3", "audio/q43.mp3", "audio/q44.mp3", "audio/q45.mp3", "audio/q46.mp3", "audio/q47.mp3", "audio/q48.mp3", "audio/q49.mp3", "audio/q50.mp3", "audio/q51.mp3", "audio/q52.mp3", "audio/q53.mp3", "audio/q54.mp3", "audio/q55.mp3", "audio/q56.mp3", "audio/q57.mp3", "audio/q58.mp3", "audio/q59.mp3", "audio/q60.mp3", "audio/q61.mp3", "audio/q62.mp3", "audio/q63.mp3", "audio/q64.mp3", "audio/q65.mp3", "audio/q66.mp3", "audio/q67.mp3", "audio/q68.mp3", "audio/q69.mp3", "audio/q70.mp3", "audio/q71.mp3", "audio/q72.mp3", "audio/q73.mp3", "audio/q74.mp3", "audio/q75.mp3", "audio/q76.mp3", "audio/q77.mp3", "audio/q78.mp3", "audio/q79.mp3", "audio/q80.mp3", "audio/x-bye.mp3", "audio/x-change.mp3", "audio/x-correct.mp3", "audio/x-done.mp3", "audio/x-greeting.mp3", "audio/x-hint.mp3", "audio/x-idk.mp3", "audio/x-next.mp3", "audio/x-wrong.mp3"]);
-/* ---------- Rashid avatar (full body): breathing, weight shift, head layer (tilt/nod/shake/look), blink, jaw synced to sound ---------- */
+/* ---------- Rashid avatar (video): real clips for idle / talk / listen / correct / wrong, crossfaded ---------- */
 const Avatar = (() => {
-  const cv = document.getElementById('rashidCanvas'); const ctx = cv.getContext('2d');
-  const W = 602, H = 1274; cv.width = W; cv.height = H;
-  const img = new Image(); img.src = 'rashid-full-hd.jpg';
-  const EYES = [{x:255,y:134,rx:11,ry:4.5},{x:309,y:134,rx:11,ry:4.5}];
-  const MOUTH = {x:281,y:188};
-  const NECK = {x:282,y:250};
-  const HEAD = {x:283,y:150,rx:112,ry:128};
-  const JAWC = {x:281,y:210,r:42};
-  const BG = '#86817f';
-  const mk = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return [c, c.getContext('2d')]; };
-  const [hc, hx] = mk(); const [jc, jx] = mk();
   const box = document.getElementById('rashidBox');
-  let state = 'idle', amp = 0, analyser = null, buf = null, analyserLive = false, actx = null;
-  let tilt = 0, look = 0, lift = 0, sway = 0, lean = 0, react = null, reactT0 = 0, hear = 0, lastPeak = 0, bob = 0;
-  let lookT = 0, lookAt = performance.now() + 3000, blinkAt = performance.now() + 2000, blinkT0 = -1e9, nodsT0 = -1e9;
+  const stage = document.getElementById('rashidVideos');
+  const base = (window.RASHID_VIDEO_BASE || 'video/');
+  const NAMES = ['idle','talk','listen','yes','no'];
+  const vids = {};
+  let ok = true;
+  NAMES.forEach(n => {
+    const v = document.createElement('video');
+    v.muted = true; v.defaultMuted = true; v.playsInline = true; v.setAttribute('playsinline',''); v.setAttribute('muted','');
+    v.preload = 'auto'; v.loop = (n==='idle'||n==='talk'||n==='listen');
+    v.poster = base + 'poster.jpg'; v.src = base + n + '.mp4';
+    v.className = 'rv' + (n==='idle' ? ' on' : '');
+    v.onerror = () => { ok = false; box.classList.add('novideo'); };
+    stage.appendChild(v); vids[n] = v;
+  });
+  let state = 'idle', shown = 'idle', reacting = false, actx = null, analyser = null, buf = null, amp = 0, hear = 0;
   const sameOrigin = location.protocol !== 'file:';
-  const ease = (a, b, k) => a + (b - a) * k;
-
-  function ensureCtx(){ if(!actx && sameOrigin){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(_){} } if(actx && actx.state==='suspended') actx.resume().catch(()=>{}); }
-  function attach(audio){ analyserLive = false; if(!actx) return;
-    try{ const src = actx.createMediaElementSource(audio); const an = actx.createAnalyser(); an.fftSize = 512;
-      src.connect(an); an.connect(actx.destination); analyser = an; buf = new Uint8Array(an.fftSize); analyserLive = true; }catch(_){ analyser = null; } }
-  function setState(s){ if(state===s) return; state = s; box.dataset.state = s;
-    const el = document.getElementById('rashidState'); if(el) el.textContent = {idle:'', listen:'يستمع إليك…', talk:'يتكلم…', think:'يفكّر…'}[s] ?? '';
-    if(s==='think'){ lookT = 0.6; lookAt = performance.now() + 900; } }
-  function doReact(kind){ react = kind; reactT0 = performance.now();
-    if(kind==='yes'){ const s=document.getElementById('spark'); s.classList.remove('go'); void s.offsetWidth; s.classList.add('go'); } }
-  function heard(level){ const before = hear; hear = Math.min(1, hear + (level||0.5)); if(state==='listen' && before<0.25 && hear>0.4 && performance.now()-nodsT0>2500) nodsT0 = performance.now(); }
-
-  function frame(now){
-    const t = now/1000;
-    let target = 0;
-    if(state==='talk'){
-      if(analyser && analyserLive){ analyser.getByteTimeDomainData(buf); let s=0; for(let i=0;i<buf.length;i++){const v=(buf[i]-128)/128; s+=v*v;} target = Math.min(1, Math.sqrt(s/buf.length)*5.5); }
-      else { const syl = Math.abs(Math.sin(t*10.5))*Math.abs(Math.sin(t*3.3+0.7)); target = syl>0.18 ? 0.35+0.65*syl : 0.05; }
-    }
-    amp += (target-amp)*(target>amp?0.55:0.3);
-    if(state==='talk' && amp>0.75 && now-lastPeak>650){ lastPeak = now; bob = 1; }
-    bob *= 0.9; hear *= 0.95;
-
-    if(now>lookAt){ lookAt = now + 2500 + Math.random()*4000;
-      lookT = state==='listen' ? (Math.random()-.5)*0.4 : state==='think' ? (Math.random()<.5?-1:1)*0.7 : (Math.random()-.5)*0.9; }
-
-    const breath = Math.sin(t*1.6);
-    const tiltT = state==='listen' ? -0.06 : state==='think' ? 0.05 : state==='talk' ? Math.sin(t*0.8)*0.025 : Math.sin(t*0.45)*0.02;
-    const liftT = state==='think' ? -5 : 0;
-    const leanT = state==='listen' ? 0.012 + hear*0.01 : state==='talk' ? 0.006 : 0;
-    tilt = ease(tilt, tiltT, 0.04); look = ease(look, lookT, 0.035); lift = ease(lift, liftT, 0.05); lean = ease(lean, leanT, 0.05);
-    sway = Math.sin(t*0.33)*0.006 + Math.sin(t*0.71)*0.002;
-
-    let nod = 0, shake = 0, leanX = 0;
-    if(react){ const e=(now-reactT0)/1000;
-      if(react==='yes'){ if(e<1.2) nod = Math.sin(e*Math.PI*3.4)*6*(1-e/1.2); else react=null; }
-      else if(react==='no'){ if(e<1.0) shake = Math.sin(e*Math.PI*5.5)*0.09*(1-e/1.0); else react=null; }
-      else if(react==='lean'){ if(e<0.8) leanX = Math.sin(e/0.8*Math.PI)*0.012; else react=null; } }
-    const ne = (now-nodsT0)/1000; if(ne<1.4) nod += Math.sin(ne*Math.PI*2.2)*3*(1-ne/1.4);
-    nod += bob*2.2;
-
-    let b = 0; if(now>blinkAt){ blinkT0 = now; blinkAt = now + 2200 + Math.random()*3800; }
-    const be = now-blinkT0; if(be<170) b = Math.sin(be/170*Math.PI);
-
-    ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle = BG; ctx.fillRect(0,0,W,H);
-    if(!(img.complete && img.naturalWidth)){ requestAnimationFrame(frame); return; }
-
-    hx.globalCompositeOperation='source-over'; hx.setTransform(1,0,0,1,0,0); hx.clearRect(0,0,W,H);
-    hx.drawImage(img,0,0,W,H);
-    const open = amp*4.2;
-    if(open>0.4){
-      hx.fillStyle='rgba(38,14,14,.92)'; hx.beginPath(); hx.ellipse(MOUTH.x, MOUTH.y+open*0.5, 9+amp*3, open*0.6+0.6, 0, 0, Math.PI*2); hx.fill();
-      jx.globalCompositeOperation='source-over'; jx.setTransform(1,0,0,1,0,0); jx.clearRect(0,0,W,H);
-      jx.save(); jx.beginPath(); jx.rect(0, MOUTH.y+open, W, H); jx.clip(); jx.drawImage(img,0,open,W,H); jx.restore();
-      jx.globalCompositeOperation='destination-in';
-      const jg = jx.createRadialGradient(JAWC.x,JAWC.y,0,JAWC.x,JAWC.y,JAWC.r*1.5); jg.addColorStop(0,'#000'); jg.addColorStop(.6,'#000'); jg.addColorStop(1,'rgba(0,0,0,0)');
-      jx.fillStyle = jg; jx.fillRect(0,0,W,H*0.3);
-      hx.drawImage(jc,0,0);
-    }
-    if(b>0.02) EYES.forEach(e=>{
-      hx.save(); hx.beginPath(); hx.ellipse(e.x,e.y,e.rx,e.ry+1.5,0,0,Math.PI*2); hx.clip();
-      const top=e.y-e.ry-1.5, h=(e.ry*2+3)*b; const g=hx.createLinearGradient(0,top,0,top+h);
-      g.addColorStop(0,'rgb(104,73,64)'); g.addColorStop(1,'rgb(128,90,79)'); hx.fillStyle=g; hx.fillRect(e.x-e.rx-2,top,e.rx*2+4,h);
-      hx.strokeStyle='rgba(30,20,16,.85)'; hx.lineWidth=1.2; hx.beginPath(); hx.ellipse(e.x, top+h-0.5, e.rx*0.9, 1.2, 0, 0, Math.PI); hx.stroke(); hx.restore(); });
-    hx.globalCompositeOperation='destination-in';
-    hx.save(); hx.translate(HEAD.x, HEAD.y); hx.scale(1, HEAD.ry/HEAD.rx);
-    const hg = hx.createRadialGradient(0,0,0,0,0,HEAD.rx); hg.addColorStop(0,'#000'); hg.addColorStop(.72,'#000'); hg.addColorStop(1,'rgba(0,0,0,0)');
-    hx.fillStyle = hg; hx.fillRect(-HEAD.rx,-HEAD.rx,HEAD.rx*2,HEAD.rx*2); hx.restore();
-
-    const s = 1 + lean + leanX;
-    ctx.translate(W/2, H); ctx.rotate(sway + Math.sin(t*0.9)*0.0015); ctx.scale(s, s*(1 + breath*0.0035)); ctx.translate(-W/2, -H);
-    ctx.drawImage(img,0,0,W,H);
-    ctx.translate(NECK.x, NECK.y + breath*-0.8);
-    ctx.rotate(tilt + shake*0.35 + look*0.02);
-    ctx.translate(look*3.2 + shake*18, nod + lift);
-    ctx.scale(1 - Math.abs(look)*0.012, 1);
-    ctx.translate(-NECK.x, -NECK.y);
-    ctx.drawImage(hc,0,0);
-
-    box.style.setProperty('--hear', hear.toFixed(3)); box.style.setProperty('--amp', amp.toFixed(3));
-    requestAnimationFrame(frame);
+  function show(n, restart){
+    const v = vids[n]; if(!v) return;
+    if(restart){ try{ v.currentTime = 0; }catch(_){} }
+    const p = v.play(); if(p) p.catch(()=>{});
+    if(shown !== n){ vids[n].classList.add('on'); const prev = vids[shown]; prev.classList.remove('on'); const was = shown; setTimeout(()=>{ if(shown!==was) prev.pause(); }, 400); shown = n; }
   }
-  requestAnimationFrame(frame);
-  return { setState, react: doReact, heard, attach, ensureCtx, get state(){return state;} };
+  function baseClip(s){ return s==='talk' ? 'talk' : (s==='listen'||s==='think') ? 'listen' : 'idle'; }
+  function setState(s){
+    if(state !== s){ state = s; box.dataset.state = s;
+      const el = document.getElementById('rashidState'); if(el) el.textContent = {idle:'', listen:'يستمع إليك…', talk:'يتكلم…', think:'يفكّر…'}[s] ?? ''; }
+    vids.listen.playbackRate = s==='think' ? 0.75 : 1;
+    if(!reacting) show(baseClip(s), false);
+  }
+  function react(kind){
+    if(kind==='yes'){ const sp=document.getElementById('spark'); if(sp){ sp.classList.remove('go'); void sp.offsetWidth; sp.classList.add('go'); } }
+    if(kind!=='yes' && kind!=='no') return;
+    reacting = true; const v = vids[kind];
+    v.onended = () => { reacting = false; show(baseClip(state), false); };
+    show(kind, true);
+    setTimeout(()=>{ if(reacting && shown===kind){ reacting=false; show(baseClip(state), false); } }, 6000);
+  }
+  function heard(level){ hear = Math.min(1, hear + (level||0.5)); }
+  function ensureCtx(){ if(!actx && sameOrigin){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(_){} } if(actx && actx.state==='suspended') actx.resume().catch(()=>{}); }
+  function attach(audio){ if(!actx) return; try{ const src=actx.createMediaElementSource(audio); const an=actx.createAnalyser(); an.fftSize=512; src.connect(an); an.connect(actx.destination); analyser=an; buf=new Uint8Array(an.fftSize); }catch(_){ analyser=null; } }
+  function unlock(){ NAMES.forEach(n=>{ const v=vids[n]; const p=v.play(); if(p) p.then(()=>{ if(n!==shown) v.pause(); }).catch(()=>{}); }); }
+  (function tick(t){
+    let target = 0;
+    if(state==='talk'){ if(analyser){ analyser.getByteTimeDomainData(buf); let s=0; for(let i=0;i<buf.length;i++){const x=(buf[i]-128)/128; s+=x*x;} target=Math.min(1,Math.sqrt(s/buf.length)*5.5); }
+      else { const syl=Math.abs(Math.sin(t/1000*10.5))*Math.abs(Math.sin(t/1000*3.3+0.7)); target = syl>0.18?0.35+0.65*syl:0.05; } }
+    amp += (target-amp)*(target>amp?0.5:0.25); hear *= 0.95;
+    box.style.setProperty('--amp', amp.toFixed(3)); box.style.setProperty('--hear', hear.toFixed(3));
+    requestAnimationFrame(tick);
+  })(0);
+  show('idle', false);
+  return { setState, react, heard, attach, ensureCtx, unlock, get state(){ return state; } };
 })();
 
 const $ = id => document.getElementById(id);
@@ -453,7 +405,18 @@ ${q?`السؤال الحالي: ${q.q}\nالإجابة الرسمية (سرّي�
 - "next": يطلب سؤالاً أو تغيير السؤال. "bye": يودّع أو ينهي المحادثة.
 - "chat": سؤال أو كلام عام خارج المسابقة. اكتب في reply رداً قصيراً (جملة أو جملتان، أقل من 35 كلمة) بصوت راشد، صحيحاً ومفيداً. إن كان سؤالاً قانونياً شخصياً فقدّم معلومة عامة وانصح بمراجعة محاكم ونيابات عجمان. لا تكشف إجابة السؤال الحالي، وإن كان هناك سؤال حالي فاختم بتذكير لطيف به.`;
 }
+function localChat(said){
+  const u=norm(said);
+  const R=[[/اسمك|من انت|منو انت|عرفنا بنفسك|مين انت/,'أنا راشد، الشخصية الافتراضية لمحاكم ونيابات عجمان، وأقدّم لكم مسابقة عن تراث الإمارات.'],
+    [/شلونك|كيف حالك|كيفك|شخبارك|علومك/,'بخير الحمد لله، وأنت شخبارك؟ إذا جاهز قل عطني السؤال.'],
+    [/شكرا|مشكور|يعطيك العافيه|تسلم/,'العفو، تسلم! حياك في أي وقت.'],
+    [/محاكم|نيابه|نيابات|قضيه|دعوى|محامي|قانون/,'للاستفسارات القانونية تقدر تتواصل مع محاكم ونيابات عجمان مباشرة عبر قنواتها الرسمية، وأنا هنا للمسابقة. تبي سؤال؟'],
+    [/السلام عليكم|مرحبا|هلا|صباح الخير|مساء الخير/,'وعليكم السلام ومرحبا بك! قل عطني السؤال ونبدأ.']];
+  for(const [rx,reply] of R) if(rx.test(u)) return {intent:'chat',reply};
+  return null;
+}
 async function brain(said){
+  if(window.RASHID_NO_AI) return localChat(said);
   const prompt=brainPrompt(said);
   const sample = sampleDead?null:await samplePromise;
   if(sample){
@@ -560,7 +523,7 @@ function micUnavailable(){
 
 /* ---------- start / end ---------- */
 async function startCall(){
-  unlockAudio(); S.on=true; if(!IOS) Avatar.ensureCtx(); $('startBtn').hidden=true; $('live').hidden=false; $('typeForm').hidden=false;
+  unlockAudio(); try{Avatar.unlock&&Avatar.unlock();}catch(_){} S.on=true; if(!IOS) Avatar.ensureCtx(); $('startBtn').hidden=true; $('live').hidden=false; $('typeForm').hidden=false;
   try{ navigator.wakeLock?.request('screen').catch(()=>{}); }catch(_){}
   rec=initRec();
   if(rec && IOS){ try{ startedByTap=true; rec.start(); }catch(_){} }   // permission prompt happens inside the tap

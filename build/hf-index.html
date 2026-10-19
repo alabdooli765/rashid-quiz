@@ -1,0 +1,549 @@
+<title>مسابقة راشد</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="راشد">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0d0c0a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one ceremonial screen — Rashid stands on the right, the question "file" sits beside him, the big call button below. Black robe, gold trim, white kandura. */
+:root{
+  --ink:#0d0c0a; --robe:#16140f; --panel:#1d1a14; --line:#3a3223;
+  --gold:#c9a24c; --gold-soft:#e6cd8a; --kandura:#f6f2e8; --muted:#a69c86;
+  --ok:#5fb37c; --no:#d9785b;
+  --f-display:"Amiri","Traditional Arabic",serif;
+  --f-body:"IBM Plex Sans Arabic","Segoe UI","Tahoma",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--ink);color:var(--kandura);font-family:var(--f-body);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  background:radial-gradient(ellipse 70% 60% at 70% 40%,#2a2316 0%,transparent 70%),var(--ink)}
+.bg .wm{position:absolute;inset:auto 0 4%;text-align:center;font-family:var(--f-display);font-weight:700;
+  font-size:clamp(48px,11vw,170px);line-height:1;color:transparent;-webkit-text-stroke:1px rgba(201,162,76,.14);white-space:nowrap}
+.bg svg{position:absolute;left:4%;top:12%;width:min(38vw,420px);opacity:.06}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding-block:18px 24px;gap:18px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.brand .seal{width:46px;height:46px;border:1.5px solid var(--gold);border-radius:50%;display:grid;place-items:center;color:var(--gold)}
+.brand h1{margin:0;font-family:var(--f-display);font-size:clamp(22px,3vw,30px);line-height:1.1;color:var(--gold-soft)}
+.brand small{display:block;color:var(--muted);font-size:13px;letter-spacing:.02em}
+.score{display:flex;gap:16px;font-size:14px;color:var(--muted)}
+.score b{color:var(--gold-soft);font-variant-numeric:tabular-nums;font-size:18px;margin-inline-start:4px}
+
+.stage{flex:1;display:grid;grid-template-columns:minmax(220px,340px) 1fr;gap:28px;align-items:center}
+.rashid{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px}
+.portrait{position:relative;height:min(62vh,640px);width:auto;max-width:100%;aspect-ratio:768/1344;border-radius:160px 160px 18px 18px;overflow:hidden;background:#221d16;
+  border:2px solid var(--gold);box-shadow:0 0 0 6px var(--ink),0 0 0 7px var(--line)}
+.portrait canvas{width:100%;height:100%;display:block;object-fit:contain}
+.avwrap{position:relative;display:grid;place-items:center;max-width:100%}
+.rvs{position:absolute;inset:0}.rv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .28s ease}.rv.on{opacity:1}.rimg{display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.novideo .rimg{display:block}.novideo .rvs{display:none}
+.rings{position:absolute;inset:-14px;pointer-events:none;border-radius:200px 200px 26px 26px}
+.rings i{position:absolute;inset:0;border-radius:inherit;border:2px solid var(--gold);opacity:0}
+[data-state="listen"] .rings i{animation:ring 2.4s ease-out infinite}
+[data-state="listen"] .rings i:nth-child(2){animation-delay:.8s}
+[data-state="listen"] .rings i:nth-child(3){animation-delay:1.6s}
+@keyframes ring{0%{transform:scale(.96);opacity:calc(.35 + var(--hear,0)*.6)}100%{transform:scale(1.12);opacity:0}}
+[data-state="listen"] .portrait{box-shadow:0 0 0 6px var(--ink),0 0 0 7px var(--line),0 0 calc(10px + var(--hear,0)*40px) rgba(201,162,76,calc(.15 + var(--hear,0)*.5))}
+[data-state="talk"] .portrait{box-shadow:0 0 0 6px var(--ink),0 0 0 7px var(--line),0 0 calc(14px + var(--amp,0)*36px) rgba(201,162,76,.35)}
+.think{position:absolute;top:8%;inset-inline-start:-6px;display:none;gap:6px;background:var(--kandura);padding:9px 12px;border-radius:16px}
+.think i{width:8px;height:8px;border-radius:50%;background:var(--ink);animation:dot 1s infinite}
+.think i:nth-child(2){animation-delay:.15s}.think i:nth-child(3){animation-delay:.3s}
+[data-state="think"] .think{display:flex}
+@keyframes dot{50%{transform:translateY(-5px);opacity:.4}}
+.spark{position:absolute;inset:0;pointer-events:none}
+.spark b{position:absolute;left:50%;top:40%;width:9px;height:9px;background:var(--gold-soft);clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);opacity:0}
+.spark.go b{animation:burst 1.1s ease-out forwards}
+@keyframes burst{0%{opacity:1;transform:translate(-50%,-50%) rotate(0) translate(0)}100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--a)) translate(170px) scale(.4)}}
+.rstate{font-size:13px;color:var(--gold);min-height:20px;text-align:center}
+.eq{display:inline-flex;gap:3px;align-items:flex-end;height:14px;margin-inline-start:6px;vertical-align:middle}
+.eq i{width:3px;background:var(--gold);height:30%;border-radius:2px}
+[data-state="talk"] .eq i{height:calc(20% + var(--amp,0)*80%)}
+[data-state="talk"] .eq i:nth-child(2){height:calc(35% + var(--amp,0)*65%)}
+[data-state="listen"] .eq i{height:calc(20% + var(--hear,0)*80%)}
+.portrait::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 0 rgba(201,162,76,0);transition:box-shadow .3s}
+
+@keyframes pulse{50%{box-shadow:inset 0 0 40px 6px rgba(201,162,76,.45)}}
+.nameplate{font-family:var(--f-display);font-size:24px;color:var(--gold-soft);line-height:1}
+.nameplate span{display:block;font-family:var(--f-body);font-size:12px;color:var(--muted);text-align:center;margin-top:4px}
+
+.right{display:flex;flex-direction:column;gap:16px;min-width:0}
+.bubble{background:var(--kandura);color:#1a1712;border-radius:22px 6px 22px 22px;padding:16px 20px;font-size:clamp(17px,2vw,21px);font-weight:500;min-height:64px;position:relative}
+.bubble::before{content:"راشد";position:absolute;top:-11px;right:18px;background:var(--gold);color:var(--ink);font-size:12px;font-weight:700;padding:1px 10px;border-radius:10px}
+
+.file{border:1px solid var(--line);background:linear-gradient(180deg,var(--panel),var(--robe));border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:12px;position:relative}
+.file .meta{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:13px;flex-wrap:wrap}
+.file .meta .no{color:var(--gold);font-weight:600;font-variant-numeric:tabular-nums}
+.file .q{font-family:var(--f-display);font-size:clamp(24px,3.2vw,36px);line-height:1.35;font-weight:700;text-wrap:balance;margin:0}
+.ans{border-top:1px dashed var(--line);padding-top:12px;display:flex;align-items:center;gap:12px;min-height:52px}
+.ans .lock{width:34px;height:34px;flex:none;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted)}
+.ans .txt{font-size:18px;color:var(--muted)}
+.ans.open .lock{border-color:var(--ok);color:var(--ok)}
+.ans.open .txt{color:var(--kandura);font-weight:600;animation:reveal .5s ease-out}
+@keyframes reveal{from{opacity:0;transform:translateY(6px)}}
+.file.flash-no{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+.heard{font-size:14px;color:var(--muted);min-height:22px}
+.heard b{color:var(--kandura);font-weight:500}
+
+.controls{display:flex;flex-direction:column;align-items:center;gap:14px}
+.call{appearance:none;border:0;cursor:pointer;font-family:var(--f-body);font-weight:700;font-size:clamp(20px,2.6vw,26px);
+  color:var(--ink);background:linear-gradient(180deg,var(--gold-soft),var(--gold));padding:20px 44px;border-radius:999px;
+  display:flex;align-items:center;gap:14px;box-shadow:0 10px 30px rgba(201,162,76,.25),0 0 0 6px rgba(201,162,76,.12)}
+.call:hover{filter:brightness(1.06)}
+.call:focus-visible,.btn:focus-visible,input:focus-visible{outline:3px solid var(--kandura);outline-offset:3px}
+.call svg{width:30px;height:30px}
+.live{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center}
+.mic{display:flex;align-items:center;gap:10px;padding:10px 18px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-size:15px}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--muted)}
+.mic.listen .dot{background:var(--no);animation:blink 1s infinite}
+.mic.speak .dot{background:var(--gold)}
+.talk{appearance:none;border:0;cursor:pointer;font:inherit;font-weight:700;font-size:18px;color:var(--ink);background:linear-gradient(180deg,var(--gold-soft),var(--gold));padding:14px 26px;border-radius:999px;display:flex;gap:10px;align-items:center;box-shadow:0 0 0 6px rgba(201,162,76,.14);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.talk.on{background:var(--no);color:#fff;animation:blink 1s infinite}
+.lvl{width:54px;height:6px;border-radius:3px;background:var(--line);overflow:hidden}.lvl i{display:block;height:100%;width:0;background:var(--gold);transition:width .08s}
+@keyframes blink{50%{opacity:.3}}
+.btn{appearance:none;cursor:pointer;font-family:var(--f-body);font-size:15px;font-weight:600;color:var(--kandura);background:transparent;border:1px solid var(--line);padding:10px 18px;border-radius:999px}
+.btn:hover{border-color:var(--gold);color:var(--gold-soft)}
+.btn.end{border-color:#5a2e22;color:#f0b9a6}
+.typebox{display:flex;gap:8px;width:100%;max-width:640px}
+.typebox input{flex:1;min-width:0;font:inherit;font-size:17px;color:var(--kandura);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.note{font-size:13px;color:var(--muted);text-align:center;max-width:640px}
+details.set{font-size:14px;color:var(--muted);max-width:640px;width:100%}
+details.set summary{cursor:pointer;text-align:center}
+details.set .grid{display:grid;gap:8px;margin-top:10px}
+details.set input{font:inherit;color:var(--kandura);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 12px;width:100%}
+.cats{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.cats button{font:inherit;font-size:13px;cursor:pointer;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.cats button[aria-pressed="true"]{color:var(--ink);background:var(--gold);border-color:var(--gold)}
+@media (max-width:760px){
+  .stage{grid-template-columns:1fr;gap:16px}
+  .portrait{height:min(40vh,340px)}.portrait{border-radius:85px 85px 12px 12px}.rings{border-radius:95px 95px 20px 20px}
+  .rashid{flex-direction:row;justify-content:center;gap:16px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+
+<div class="bg" aria-hidden="true" dir="rtl">
+  <svg viewBox="0 0 200 200" fill="none" stroke="#c9a24c" stroke-width="3"><path d="M100 20v160M60 180h80M40 50h120M100 30l-6 20h12z"/><path d="M40 50L18 110h44zM160 50l-22 60h44z"/><path d="M18 110a22 12 0 0 0 44 0M138 110a22 12 0 0 0 44 0"/></svg>
+  <div class="wm">محاكم ونيابات عجمان</div>
+</div>
+
+<div class="wrap" dir="rtl" lang="ar">
+  <header>
+    <div class="brand">
+      <div class="seal"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v18M7 21h10M4 7h16M4 7l-3 7h6zM20 7l-3 7h6z"/></svg></div>
+      <div><h1>محاكم ونيابات عجمان</h1><small>مسابقة راشد · تراث الإمارات</small></div>
+    </div>
+    <div class="score"><span>صحيحة<b id="sOk">0</b></span><span>محاولات<b id="sTry">0</b></span><span>الأسئلة<b id="sLeft">80</b></span></div>
+  </header>
+
+  <main class="stage">
+    <section class="rashid" id="rashidBox" data-state="idle">
+      <div class="avwrap">
+        <div class="rings" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="portrait"><div id="rashidVideos" class="rvs" role="img" aria-label="راشد، الشخصية الافتراضية لمحاكم ونيابات عجمان"></div><img class="rimg" src="rashid-full-hd.jpg" alt=""></div>
+        <div class="think" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="spark" id="spark" aria-hidden="true"><b style="--a:0deg"></b><b style="--a:30deg"></b><b style="--a:60deg"></b><b style="--a:90deg"></b><b style="--a:120deg"></b><b style="--a:150deg"></b><b style="--a:180deg"></b><b style="--a:210deg"></b><b style="--a:240deg"></b><b style="--a:270deg"></b><b style="--a:300deg"></b><b style="--a:330deg"></b></div>
+      </div>
+      <div class="nameplate">راشد<span>محاكم ونيابات عجمان</span></div>
+      <div class="rstate"><span id="rashidState"></span><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span></div>
+    </section>
+
+    <section class="right">
+      <div class="bubble" id="bubble" aria-live="polite">مرحبا بكم، أنا راشد من محاكم ونيابات عجمان. اضغط «ابدأ المحادثة» وقل لي: عطني السؤال.</div>
+
+      <article class="file" id="file">
+        <div class="meta"><span class="no" id="qNo">بانتظار أول سؤال</span><span id="qCat">٨ أقسام · ٨٠ سؤالاً</span></div>
+        <p class="q" id="qText">قل «عطني السؤال» وأنا أسألك.</p>
+        <div class="ans" id="ans">
+          <div class="lock" id="lockIcon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+          <div class="txt" id="ansText">الإجابة مخفية، تظهر فقط عند الإجابة الصحيحة</div>
+        </div>
+      </article>
+
+      <div class="heard" id="heard"></div>
+    </section>
+  </main>
+
+  <section class="controls">
+    <button class="call" id="startBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4M8 21h8"/></svg>
+      ابدأ المحادثة مع راشد
+    </button>
+    <div class="live" id="live" hidden>
+      <div class="mic" id="mic"><span class="dot"></span><span id="micTxt">راشد يسمعك…</span><span class="lvl" aria-hidden="true"><i id="lvl"></i></span></div>
+      <button class="talk" id="talkBtn" type="button" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/></svg><span id="talkTxt">اضغط وجاوب</span></button>
+      <button class="btn" id="nextBtn" type="button">غيّر السؤال</button>
+      <button class="btn end" id="endBtn" type="button">مع السلامة</button>
+    </div>
+    <form class="typebox" id="typeForm" hidden>
+      <input id="typeIn" type="text" placeholder="اكتب إجابتك أو سؤالك هنا…" autocomplete="off">
+      <button class="btn" type="submit">إرسال</button>
+    </form>
+    <div class="cats" id="cats" aria-label="الأقسام"></div>
+    <p class="note" id="diag" aria-live="polite"></p>
+    <p class="note" id="note">المحادثة تبقى مفتوحة حتى تقول «مع السلامة». قل «غيّره» أو «سؤال ثاني» لتغيير السؤال.</p>
+    <details class="set" hidden>
+      <summary>إعدادات اختيارية (لصوت راشد والأسئلة الحرّة)</summary>
+      <div class="grid">
+        <input id="elKey" type="password" placeholder="مفتاح ElevenLabs API (لينطق راشد الردود الحرّة بصوته)">
+        <input id="elVoice" type="text" placeholder="Voice ID لصوت راشد في ElevenLabs">
+        <input id="clKey" type="password" placeholder="مفتاح Claude API (للأسئلة خارج المسابقة عند التشغيل خارج Claude)">
+        <label for="srLang" style="display:flex;gap:8px;align-items:center">لهجة التعرّف على الصوت
+          <select id="srLang" style="font:inherit;color:var(--kandura);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px">
+            <option value="ar-AE">العربية (الإمارات)</option><option value="ar-SA">العربية (السعودية)</option><option value="ar-KW">العربية (الكويت)</option><option value="ar-EG">العربية (مصر)</option>
+          </select></label>
+      </div>
+    </details>
+  </section>
+</div>
+
+<script>window.RASHID_VIDEO_BASE="video/";window.RASHID_NO_AI=true;</script>
+<script>
+document.documentElement.setAttribute("dir","rtl");document.documentElement.setAttribute("lang","ar");
+const DATA = {"cats": ["قيام الاتحاد وتاريخ الإمارات", "البحر والغوص واللؤلؤ", "الحرف والمهن الإماراتية القديمة", "حياة أهل الإمارات في الماضي", "العادات والتقاليد الإماراتية", "الأكلات الشعبية الإماراتية", "الفنون والألعاب الشعبية", "جغرافية الإمارات والبيئة القديمة"], "qs": [{"id": 1, "c": 0, "q": "متى أُعلن قيام دولة الإمارات العربية المتحدة؟", "a": "2 ديسمبر 1971", "k": "1971|71|واحد وسبعين;ديسمبر|كانون الاول", "m": 1}, {"id": 2, "c": 0, "q": "من هو مؤسس دولة الإمارات وأول رئيس لها؟", "a": "الشيخ زايد بن سلطان آل نهيان، طيب الله ثراه", "k": "زايد", "m": 1}, {"id": 3, "c": 0, "q": "كم إمارة شاركت في إعلان الاتحاد أول مرة؟", "a": "6 إمارات", "k": "6|ست|سته|ستة", "m": 1}, {"id": 4, "c": 0, "q": "ما الإمارة التي انضمت إلى الاتحاد لاحقاً؟", "a": "رأس الخيمة", "k": "راس الخيمه|رأس الخيمة", "m": 1}, {"id": 5, "c": 0, "q": "متى انضمت رأس الخيمة إلى الاتحاد؟", "a": "10 فبراير 1972", "k": "1972|72|اثنين وسبعين", "m": 1}, {"id": 6, "c": 0, "q": "أين أُعلن قيام دولة الإمارات؟", "a": "دار الاتحاد في دبي", "k": "دار الاتحاد|دبي", "m": 1}, {"id": 7, "c": 0, "q": "من كان أول نائب لرئيس دولة الإمارات؟", "a": "الشيخ راشد بن سعيد آل مكتوم", "k": "راشد", "m": 1}, {"id": 8, "c": 0, "q": "أين التقى الشيخ زايد والشيخ راشد عام 1968 للاتفاق على تأسيس اتحاد؟", "a": "منطقة السميح", "k": "السميح|سميح", "m": 1}, {"id": 9, "c": 0, "q": "ماذا كان يُطلق على الإمارات قبل الاتحاد؟", "a": "الإمارات المتصالحة أو إمارات الساحل المتصالح", "k": "المتصالحه|متصالحه|الساحل المتصالح|ساحل عمان", "m": 1}, {"id": 10, "c": 0, "q": "من صمم علم دولة الإمارات؟", "a": "عبدالله محمد المعينة", "k": "المعينه|معينه|عبدالله محمد", "m": 1}, {"id": 11, "c": 0, "q": "في أي عام تولى الشيخ زايد حكم إمارة أبوظبي؟", "a": "1966", "k": "1966|66|ست وستين", "m": 1}, {"id": 12, "c": 0, "q": "ما الإمارات الست التي أعلنت الاتحاد عام 1971؟", "a": "أبوظبي، دبي، الشارقة، عجمان، أم القيوين، الفجيرة", "k": "ابوظبي|ابو ظبي;دبي;الشارقه;عجمان;ام القيوين;الفجيره", "m": 4}, {"id": 13, "c": 1, "q": "من هو النوخذة؟", "a": "قائد السفينة والمسؤول عن البحارة", "k": "قائد|ربان|قبطان|كابتن|ريس|رئيس|مسؤول السفينه", "m": 1}, {"id": 14, "c": 1, "q": "من هو الغيص؟", "a": "الشخص الذي يغوص لاستخراج المحار", "k": "يغوص|غواص|الغوص|يغطس|غطس|ينزل البحر", "m": 1}, {"id": 15, "c": 1, "q": "من هو السيب؟", "a": "الشخص الذي يسحب الغواص بالحبل", "k": "يسحب|سحب|يجر|يشد|الحبل|حبل", "m": 1}, {"id": 16, "c": 1, "q": "من هو النهّام؟", "a": "المغني الذي يردد الأهازيج البحرية", "k": "يغني|مغني|المغني|اهازيج|ينشد|منشد|الغناء|يطرب|مطرب|يردد", "m": 1}, {"id": 17, "c": 1, "q": "من هو الطوّاش؟", "a": "تاجر اللؤلؤ", "k": "تاجر|يشتري|يبيع|تجاره|تجار", "m": 1}, {"id": 18, "c": 1, "q": "ما المقصود بالهيرات؟", "a": "مناطق وجود محار اللؤلؤ", "k": "مناطق|اماكن|مكان|مواقع|مغاصات|مغاص;المحار|محار|اللؤلؤ|لؤلؤ|لولو|اللولو", "m": 2}, {"id": 19, "c": 1, "q": "ما هو الفطام؟", "a": "مشبك يوضع على أنف الغواص لمنع دخول الماء", "k": "مشبك|ملقط|الانف|انف|خشم|الخشم|يسد|يمنع الماء", "m": 1}, {"id": 20, "c": 1, "q": "ما هو الديين؟", "a": "كيس يستخدمه الغواص لجمع المحار", "k": "كيس|سله|شنطه|يجمع|يحط فيه", "m": 1}, {"id": 21, "c": 1, "q": "ما معنى الدشّة عند أهل البحر؟", "a": "بداية موسم الغوص", "k": "بدايه|بدء|بدايت|يبدا|يبدأ|انطلاق|اول الموسم|دخول", "m": 1}, {"id": 22, "c": 1, "q": "ما معنى القفّال؟", "a": "عودة سفن الغوص بعد انتهاء الموسم", "k": "عوده|رجوع|يرجعون|يرجع|العوده|نهايه|انتهاء|ختام|الرجعه", "m": 1}, {"id": 23, "c": 1, "q": "ما هو السنبوك؟", "a": "نوع من السفن الخشبية التقليدية", "k": "سفينه|سفن|مركب|قارب|محمل|سفينة|بوم", "m": 1}, {"id": 24, "c": 1, "q": "ما هو القرقور؟", "a": "مصيدة تقليدية لصيد الأسماك", "k": "مصيده|صيد|فخ|قفص|اسماك|سمك", "m": 1}, {"id": 25, "c": 2, "q": "من هو الجلّاف؟", "a": "صانع السفن الخشبية", "k": "صانع|يصنع|يبني|صناعه|نجار|بناء|يسوي;سفن|السفن|سفينه|مراكب|قوارب|المحامل|اللنجات", "m": 2}, {"id": 26, "c": 2, "q": "ما هي حرفة السدو؟", "a": "نسج الصوف ووبر الإبل وشعر الماعز", "k": "نسج|نسيج|حياكه|يحيك|ينسج|غزل|صوف", "m": 1}, {"id": 27, "c": 2, "q": "ما هي حرفة التلي؟", "a": "صناعة شرائط زخرفية لتزيين الملابس النسائية", "k": "شرائط|شريط|تزيين|زخرف|زخرفه|خيوط|تطريز|الملابس|ملابس", "m": 1}, {"id": 28, "c": 2, "q": "ما هي حرفة الخوص؟", "a": "صناعة الأدوات من سعف النخيل", "k": "سعف|النخيل|نخل|النخل|خوص", "m": 1}, {"id": 29, "c": 2, "q": "ما هو السرود؟", "a": "مفرش دائري مصنوع من الخوص يوضع عليه الطعام", "k": "مفرش|سفره|سماط|يوضع عليه الطعام|يحط عليه الاكل", "m": 1}, {"id": 30, "c": 2, "q": "ما هي المهفّة؟", "a": "مروحة يدوية تُصنع غالباً من سعف النخيل", "k": "مروحه|مهفه|تهويه|هواء|هوا|يهف", "m": 1}, {"id": 31, "c": 2, "q": "ما هو المندوس؟", "a": "صندوق خشبي مزخرف لحفظ الملابس والمقتنيات", "k": "صندوق|صندوج", "m": 1}, {"id": 32, "c": 2, "q": "من هو المطوّع؟", "a": "معلم القرآن الكريم في الماضي", "k": "معلم|مدرس|يعلم|يدرس|القران|قران", "m": 1}, {"id": 33, "c": 2, "q": "من هو الطارش؟", "a": "الشخص الذي ينقل الرسائل والأخبار بين الناس", "k": "رسائل|رساله|الرسائل|الاخبار|اخبار|ينقل|ساعي|مرسال|البريد|الخبر", "m": 1}, {"id": 34, "c": 2, "q": "ما مهنة الحدّاد قديماً؟", "a": "صناعة وإصلاح الأدوات الحديدية", "k": "حديد|الحديد|حديديه|معدن|معادن", "m": 1}, {"id": 35, "c": 3, "q": "ما معنى الفريج؟", "a": "الحي السكني الذي تعيش فيه مجموعة من الأسر", "k": "حي|الحي|حاره|الحاره|سكني|سكنيه|الجيران|منطقه", "m": 1}, {"id": 36, "c": 3, "q": "ما هو العريش؟", "a": "مسكن تقليدي يُبنى من سعف وجريد النخيل", "k": "سعف|النخيل|جريد|نخل|خوص", "m": 1}, {"id": 37, "c": 3, "q": "ما هو البرجيل؟", "a": "برج هواء يستخدم لتهوية وتبريد المنازل", "k": "برج|تهويه|تبريد|هواء|هوا|تكييف|ملقف|يبرد", "m": 1}, {"id": 38, "c": 3, "q": "ما معنى الطوي؟", "a": "بئر الماء", "k": "بئر|بير|البير|البئر", "m": 1}, {"id": 39, "c": 3, "q": "ما هو الفلج؟", "a": "نظام تقليدي لنقل وتوزيع مياه الري", "k": "ري|الري|مياه|ماء|الماي|قنوات|قناه|سقي|توزيع", "m": 1}, {"id": 40, "c": 3, "q": "ما المقصود بالمقيظ؟", "a": "الانتقال إلى الواحات والمناطق الزراعية صيفاً", "k": "انتقال|ينتقلون|ينتقل|الصيف|صيف|المصيف|القيظ|واحات|الواحات|المزارع|الزراعه|ليوا", "m": 1}, {"id": 41, "c": 3, "q": "لماذا كان المجلس مهماً في حياة الإماراتيين؟", "a": "لاستقبال الضيوف والتشاور وحل المشكلات", "k": "استقبال|الضيوف|ضيوف|التشاور|تشاور|مشاوره|حل المشاكل|المشكلات|اجتماع|يجتمعون|سوالف|السوالف", "m": 1}, {"id": 42, "c": 3, "q": "ما هي الدلّة؟", "a": "إناء تحضير أو تقديم القهوة العربية", "k": "القهوه|قهوه", "m": 1}, {"id": 43, "c": 3, "q": "ما هو المنز؟", "a": "مهد تقليدي للأطفال", "k": "مهد|سرير|كاروه|هزاز|طفل|اطفال|الطفل|رضيع|الياهل|اليهال", "m": 1}, {"id": 44, "c": 3, "q": "ما المقصود بحوش البيت؟", "a": "الساحة الداخلية للمنزل", "k": "ساحه|الساحه|فناء|وسط البيت|داخليه|حوي", "m": 1}, {"id": 45, "c": 4, "q": "ما معنى السنع الإماراتي؟", "a": "الآداب والأخلاق وأصول التعامل مع الآخرين", "k": "الاداب|اداب|الاخلاق|اخلاق|اصول|تعامل|الاحترام|احترام|العادات|السلوك|سلوك|الذوق", "m": 1}, {"id": 46, "c": 4, "q": "ما هي الفوالة؟", "a": "ما يُقدم للضيف من طعام خفيف وحلوى وفواكه", "k": "ضيف|الضيف|الضيوف|ضيافه|حلوى|حلويات|فواكه|فاكهه|اكل خفيف|طعام خفيف", "m": 1}, {"id": 47, "c": 4, "q": "بأي يد تُقدم القهوة العربية عادةً؟", "a": "اليد اليمنى", "k": "اليمنى|اليمين|يمين|يمنى|ايمن", "m": 1}, {"id": 48, "c": 4, "q": "ماذا يفعل الضيف عندما يكتفي من القهوة؟", "a": "يهز الفنجان", "k": "يهز|هز|يحرك|ينفض|يرج|يهزه|تهز", "m": 1}, {"id": 49, "c": 4, "q": "لماذا يستخدم الإماراتيون العود والبخور؟", "a": "للتطيّب وتعطير البيوت والملابس واستقبال الضيوف", "k": "تطيب|طيب|تعطير|ريحه|رائحه|عطر|تبخير|يبخرون|ضيوف|الضيوف", "m": 1}, {"id": 50, "c": 4, "q": "ما هي مناسبة حق الليلة؟", "a": "احتفال تراثي للأطفال في ليلة النصف من شعبان", "k": "شعبان|النصف|نص شعبان|اطفال|الاطفال", "m": 1}, {"id": 51, "c": 4, "q": "ما هي العيدية؟", "a": "نقود أو هدايا تُقدم للأطفال في العيد", "k": "نقود|فلوس|مال|بيزات|بيسات|هدايا|هديه", "m": 1}, {"id": 52, "c": 4, "q": "ما معنى المير؟", "a": "المؤونة والمواد الغذائية المخزنة للبيت", "k": "المؤونه|مؤونه|المونه|مونه|المواد الغذائيه|طعام|تموين|اغراض البيت|مقاضي|المقاضي|اكل", "m": 1}, {"id": 53, "c": 4, "q": "ما المقصود بالرمسة؟", "a": "الكلام أو الحديث باللهجة الإماراتية", "k": "الكلام|كلام|الحديث|حديث|حجي|سوالف|سالفه|اللهجه|نتكلم", "m": 1}, {"id": 54, "c": 4, "q": "ما معنى الخروفة أو الخراريف؟", "a": "الحكايات الشعبية القديمة", "k": "حكايات|حكايه|قصص|قصه|حكاوي|سوالف", "m": 1}, {"id": 55, "c": 5, "q": "ما هو الهريس؟", "a": "أكلة شعبية تُحضّر من القمح واللحم", "k": "قمح|حب|الحب|القمح", "m": 1}, {"id": 56, "c": 5, "q": "ما هو الثريد؟", "a": "خبز يُشرّب بمرق اللحم أو الخضار", "k": "خبز|الخبز|رقاق|مرق|المرق|مرقه|صالونه|الصالونه", "m": 1}, {"id": 57, "c": 5, "q": "ما هو البلاليط؟", "a": "شعيرية متبلة ومحلاة تُقدم غالباً مع البيض", "k": "شعيريه|شعريه|الشعيريه|الشعريه|معكرونه", "m": 1}, {"id": 58, "c": 5, "q": "ما هو اللقيمات؟", "a": "كرات عجين مقلية تُقدم مع الدبس أو القطر", "k": "عجين|عجينه|كرات|كور|مقليه|مقلي|يقلى|حلوى|زلابيه|دبس", "m": 1}, {"id": 59, "c": 5, "q": "ما هو الخبيص؟", "a": "حلوى شعبية تُحضّر من الدقيق أو السميد والسكر والسمن", "k": "حلوى|حلو|حلويات|طحين|دقيق|سميد|سكر|سمن", "m": 1}, {"id": 60, "c": 5, "q": "ما هو خبز الرقاق؟", "a": "خبز رقيق يُخبز على صاج ساخن", "k": "رقيق|صاج|الصاج|تاوه|التاوه|خفيف|رقاقه", "m": 1}, {"id": 61, "c": 5, "q": "ما هو المالح؟", "a": "سمك محفوظ بالملح", "k": "سمك|السمك|سمج|اسماك;ملح|مملح|الملح|مملوح|مالح", "m": 2}, {"id": 62, "c": 5, "q": "ما هو خبز الخمير؟", "a": "خبز شعبي مصنوع من عجين مخمّر", "k": "مخمر|خميره|الخميره|مختمر|يخمر|تخمير", "m": 1}, {"id": 63, "c": 6, "q": "ما هي العيّالة؟", "a": "فن أداء جماعي تراثي يتضمن الإنشاد والحركة الإيقاعية", "k": "فن|رقصه|اداء|انشاد|جماعي|عصي|العصي|طبول|عرضه", "m": 1}, {"id": 64, "c": 6, "q": "ما هي الرزفة؟", "a": "فن شعبي جماعي يجمع بين الشعر والحركة والإيقاع", "k": "فن|رقصه|اداء|شعر|جماعي|ايقاع|عرضه", "m": 1}, {"id": 65, "c": 6, "q": "ما هي اليولة؟", "a": "فن استعراضي يتضمن تدوير السلاح أو مجسمه", "k": "تدوير|يدور|دوران|السلاح|سلاح|البندقيه|بندقيه|تفق|التفق|العصا|رمي|يرمي", "m": 1}, {"id": 66, "c": 6, "q": "ما هي التغرودة؟", "a": "شعر بدوي يُنشَد بإيقاع تقليدي، ارتبط برحلات الإبل", "k": "شعر|بدوي|ابل|الابل|البل|الهجن|انشاد|ينشد|غناء", "m": 1}, {"id": 67, "c": 6, "q": "ما هي الشلّة؟", "a": "أداء صوتي للشعر الشعبي", "k": "اداء|صوتي|الشعر|شعر|الصوت|انشاد|غناء", "m": 1}, {"id": 68, "c": 6, "q": "ما هي لعبة التيلة؟", "a": "لعبة شعبية تستخدم الكرات الزجاجية الصغيرة", "k": "زجاج|زجاجيه|كرات|كريات|بلي|البلي|الدحل|قلول|الكرات", "m": 1}, {"id": 69, "c": 6, "q": "ما هي لعبة الصقلة؟", "a": "لعبة شعبية تعتمد على الحصى الصغيرة", "k": "حصى|الحصى|حصا|حجاره|احجار|حجر|الحجر|صخور", "m": 1}, {"id": 70, "c": 6, "q": "ما هي الغميضة؟", "a": "لعبة يختبئ فيها اللاعبون ويبحث عنهم أحد المشاركين", "k": "يختبئ|يختبي|اختباء|يتخبى|تخبي|يتخبون|يبحث|يدور عليهم|استغمايه|يغمض|الغمايه", "m": 1}, {"id": 71, "c": 7, "q": "كم عدد إمارات الدولة؟", "a": "7 إمارات", "k": "7|سبع|سبعه", "m": 1}, {"id": 72, "c": 7, "q": "ما عاصمة دولة الإمارات؟", "a": "أبوظبي", "k": "ابوظبي|ابو ظبي", "m": 1}, {"id": 73, "c": 7, "q": "ما أكبر إمارة من حيث المساحة؟", "a": "أبوظبي", "k": "ابوظبي|ابو ظبي", "m": 1}, {"id": 74, "c": 7, "q": "ما أصغر إمارة من حيث المساحة؟", "a": "عجمان", "k": "عجمان", "m": 1}, {"id": 75, "c": 7, "q": "ما أعلى جبل مشهور في الإمارات؟", "a": "جبل جيس في رأس الخيمة", "k": "جيس", "m": 1}, {"id": 76, "c": 7, "q": "ما الشجرة الوطنية لدولة الإمارات؟", "a": "شجرة الغاف", "k": "الغاف|غاف", "m": 1}, {"id": 77, "c": 7, "q": "ما الواحة المشهورة في مدينة العين؟", "a": "واحة العين", "k": "العين", "m": 1}, {"id": 78, "c": 7, "q": "ما هي أشجار القرم؟", "a": "أشجار تنمو في البيئات الساحلية المالحة", "k": "ساحل|الساحل|ساحليه|بحر|البحر|مالحه|المالحه|ملح|مانجروف|القرم", "m": 1}, {"id": 79, "c": 7, "q": "ما الصحراء الكبرى التي تمتد إلى جنوب الإمارات؟", "a": "الربع الخالي", "k": "الربع الخالي|ربع الخالي|الربع", "m": 1}, {"id": 80, "c": 7, "q": "أين تقع واحة ليوا؟", "a": "في منطقة الظفرة بإمارة أبوظبي", "k": "الظفره|ظفره|ابوظبي|ابو ظبي|الغربيه", "m": 1}]};
+const HAS = new Set(["audio/a01.mp3", "audio/a02.mp3", "audio/a03.mp3", "audio/a04.mp3", "audio/a05.mp3", "audio/a06.mp3", "audio/a07.mp3", "audio/a08.mp3", "audio/a09.mp3", "audio/a10.mp3", "audio/a11.mp3", "audio/a12.mp3", "audio/a13.mp3", "audio/a14.mp3", "audio/a15.mp3", "audio/a16.mp3", "audio/a17.mp3", "audio/a18.mp3", "audio/a19.mp3", "audio/a20.mp3", "audio/a21.mp3", "audio/a22.mp3", "audio/a23.mp3", "audio/a24.mp3", "audio/a25.mp3", "audio/a26.mp3", "audio/a27.mp3", "audio/a28.mp3", "audio/a29.mp3", "audio/a30.mp3", "audio/a31.mp3", "audio/a32.mp3", "audio/a33.mp3", "audio/a34.mp3", "audio/a35.mp3", "audio/a36.mp3", "audio/a37.mp3", "audio/a38.mp3", "audio/a39.mp3", "audio/a40.mp3", "audio/a41.mp3", "audio/a42.mp3", "audio/a43.mp3", "audio/a44.mp3", "audio/a45.mp3", "audio/a46.mp3", "audio/a47.mp3", "audio/a48.mp3", "audio/a49.mp3", "audio/a50.mp3", "audio/a51.mp3", "audio/a52.mp3", "audio/a53.mp3", "audio/a54.mp3", "audio/a55.mp3", "audio/a56.mp3", "audio/a57.mp3", "audio/a58.mp3", "audio/a59.mp3", "audio/a60.mp3", "audio/a61.mp3", "audio/a62.mp3", "audio/a63.mp3", "audio/a64.mp3", "audio/a65.mp3", "audio/a66.mp3", "audio/a67.mp3", "audio/a68.mp3", "audio/a69.mp3", "audio/a70.mp3", "audio/a71.mp3", "audio/a72.mp3", "audio/a73.mp3", "audio/a74.mp3", "audio/a75.mp3", "audio/a76.mp3", "audio/a77.mp3", "audio/a78.mp3", "audio/a79.mp3", "audio/a80.mp3", "audio/q01.mp3", "audio/q02.mp3", "audio/q03.mp3", "audio/q04.mp3", "audio/q05.mp3", "audio/q06.mp3", "audio/q07.mp3", "audio/q08.mp3", "audio/q09.mp3", "audio/q10.mp3", "audio/q11.mp3", "audio/q12.mp3", "audio/q13.mp3", "audio/q14.mp3", "audio/q15.mp3", "audio/q16.mp3", "audio/q17.mp3", "audio/q18.mp3", "audio/q19.mp3", "audio/q20.mp3", "audio/q21.mp3", "audio/q22.mp3", "audio/q23.mp3", "audio/q24.mp3", "audio/q25.mp3", "audio/q26.mp3", "audio/q27.mp3", "audio/q28.mp3", "audio/q29.mp3", "audio/q30.mp3", "audio/q31.mp3", "audio/q32.mp3", "audio/q33.mp3", "audio/q34.mp3", "audio/q35.mp3", "audio/q36.mp3", "audio/q37.mp3", "audio/q38.mp3", "audio/q39.mp3", "audio/q40.mp3", "audio/q41.mp3", "audio/q42.mp3", "audio/q43.mp3", "audio/q44.mp3", "audio/q45.mp3", "audio/q46.mp3", "audio/q47.mp3", "audio/q48.mp3", "audio/q49.mp3", "audio/q50.mp3", "audio/q51.mp3", "audio/q52.mp3", "audio/q53.mp3", "audio/q54.mp3", "audio/q55.mp3", "audio/q56.mp3", "audio/q57.mp3", "audio/q58.mp3", "audio/q59.mp3", "audio/q60.mp3", "audio/q61.mp3", "audio/q62.mp3", "audio/q63.mp3", "audio/q64.mp3", "audio/q65.mp3", "audio/q66.mp3", "audio/q67.mp3", "audio/q68.mp3", "audio/q69.mp3", "audio/q70.mp3", "audio/q71.mp3", "audio/q72.mp3", "audio/q73.mp3", "audio/q74.mp3", "audio/q75.mp3", "audio/q76.mp3", "audio/q77.mp3", "audio/q78.mp3", "audio/q79.mp3", "audio/q80.mp3", "audio/x-bye.mp3", "audio/x-change.mp3", "audio/x-correct.mp3", "audio/x-done.mp3", "audio/x-greeting.mp3", "audio/x-hint.mp3", "audio/x-idk.mp3", "audio/x-next.mp3", "audio/x-wrong.mp3"]);
+/* ---------- Rashid avatar (video): real clips for idle / talk / listen / correct / wrong, crossfaded ---------- */
+const Avatar = (() => {
+  const box = document.getElementById('rashidBox');
+  const stage = document.getElementById('rashidVideos');
+  const base = (window.RASHID_VIDEO_BASE || 'video/');
+  const NAMES = ['idle','talk','listen','yes','no'];
+  const vids = {};
+  let ok = true;
+  NAMES.forEach(n => {
+    const v = document.createElement('video');
+    v.muted = true; v.defaultMuted = true; v.playsInline = true; v.setAttribute('playsinline',''); v.setAttribute('muted','');
+    v.preload = 'auto'; v.loop = (n==='idle'||n==='talk'||n==='listen');
+    v.poster = base + 'poster.jpg'; v.src = base + n + '.mp4';
+    v.className = 'rv' + (n==='idle' ? ' on' : '');
+    v.onerror = () => { ok = false; box.classList.add('novideo'); };
+    stage.appendChild(v); vids[n] = v;
+  });
+  let state = 'idle', shown = 'idle', reacting = false, actx = null, analyser = null, buf = null, amp = 0, hear = 0;
+  const sameOrigin = location.protocol !== 'file:';
+  function show(n, restart){
+    const v = vids[n]; if(!v) return;
+    if(restart){ try{ v.currentTime = 0; }catch(_){} }
+    const p = v.play(); if(p) p.catch(()=>{});
+    if(shown !== n){ vids[n].classList.add('on'); const prev = vids[shown]; prev.classList.remove('on'); const was = shown; setTimeout(()=>{ if(shown!==was) prev.pause(); }, 400); shown = n; }
+  }
+  function baseClip(s){ return s==='talk' ? 'talk' : (s==='listen'||s==='think') ? 'listen' : 'idle'; }
+  function setState(s){
+    if(state !== s){ state = s; box.dataset.state = s;
+      const el = document.getElementById('rashidState'); if(el) el.textContent = {idle:'', listen:'يستمع إليك…', talk:'يتكلم…', think:'يفكّر…'}[s] ?? ''; }
+    vids.listen.playbackRate = s==='think' ? 0.75 : 1;
+    if(!reacting) show(baseClip(s), false);
+  }
+  function react(kind){
+    if(kind==='yes'){ const sp=document.getElementById('spark'); if(sp){ sp.classList.remove('go'); void sp.offsetWidth; sp.classList.add('go'); } }
+    if(kind!=='yes' && kind!=='no') return;
+    reacting = true; const v = vids[kind];
+    v.onended = () => { reacting = false; show(baseClip(state), false); };
+    show(kind, true);
+    setTimeout(()=>{ if(reacting && shown===kind){ reacting=false; show(baseClip(state), false); } }, 6000);
+  }
+  function heard(level){ hear = Math.min(1, hear + (level||0.5)); }
+  function ensureCtx(){ if(!actx && sameOrigin){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(_){} } if(actx && actx.state==='suspended') actx.resume().catch(()=>{}); }
+  function attach(audio){ if(!actx) return; try{ const src=actx.createMediaElementSource(audio); const an=actx.createAnalyser(); an.fftSize=512; src.connect(an); an.connect(actx.destination); analyser=an; buf=new Uint8Array(an.fftSize); }catch(_){ analyser=null; } }
+  function unlock(){ NAMES.forEach(n=>{ const v=vids[n]; const p=v.play(); if(p) p.then(()=>{ if(n!==shown) v.pause(); }).catch(()=>{}); }); }
+  (function tick(t){
+    let target = 0;
+    if(state==='talk'){ if(analyser){ analyser.getByteTimeDomainData(buf); let s=0; for(let i=0;i<buf.length;i++){const x=(buf[i]-128)/128; s+=x*x;} target=Math.min(1,Math.sqrt(s/buf.length)*5.5); }
+      else { const syl=Math.abs(Math.sin(t/1000*10.5))*Math.abs(Math.sin(t/1000*3.3+0.7)); target = syl>0.18?0.35+0.65*syl:0.05; } }
+    amp += (target-amp)*(target>amp?0.5:0.25); hear *= 0.95;
+    box.style.setProperty('--amp', amp.toFixed(3)); box.style.setProperty('--hear', hear.toFixed(3));
+    requestAnimationFrame(tick);
+  })(0);
+  show('idle', false);
+  return { setState, react, heard, attach, ensureCtx, unlock, get state(){ return state; } };
+})();
+
+const $ = id => document.getElementById(id);
+
+/* ---------- Arabic normalisation & matching ---------- */
+const AR_DIG = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
+function norm(s){
+  return (' '+String(s||'')+' ')
+    .replace(/[٠-٩]/g,d=>AR_DIG[d])
+    .replace(/[ً-ْٰـ]/g,'')
+    .replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/ؤ/g,'و').replace(/ئ/g,'ي')
+    .replace(/[^؀-ۿ0-9a-z ]/gi,' ')
+    .replace(/\s+/g,' ');
+}
+function stripAl(w){return w.replace(/^(وال|بال|فال|كال|لل|ال|و)(?=..)/,'');}
+function lev(a,b){const m=a.length,n=b.length;if(!m||!n)return Math.max(m,n);let p=[...Array(n+1).keys()];
+  for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c;}return p[n];}
+function altHit(u, alt){
+  const a = norm(alt).trim(); if(!a) return false;
+  if(u.includes(' '+a+' ') || (a.length>=3 && u.includes(a))) return true;
+  if(a.includes(' ')) return false;
+  const A = stripAl(a); if(A.length<3) return false;
+  return u.trim().split(' ').some(w=>{const W=stripAl(w); if(W.length<3) return false;
+    if(W===A) return true; const d=lev(W,A); return A.length>=5 ? d<=1 || d/A.length<=.2 : false;});
+}
+function localGrade(q, said){
+  const u = norm(said);
+  const groups = q.k.split(';');
+  const hit = groups.filter(g=>g.split('|').some(alt=>altHit(u,alt))).length;
+  return hit >= q.m;
+}
+const RX = {
+  bye: /مع السلام|مع السلامه|في امان الله|فمان الله|بامان الله|الله يحفظك|باي باي|^ *باي *$|انهاء المحادثه/,
+  next:/(عطني|اعطني|عطنا|هات|ابي|ابغي|ابغا|بغيت|اسال|اسالني|اسالنا).{0,12}(سوال|سؤال)|سوال (ثاني|ثان|اخر|جديد|غيره|تاني)|غيره|غيريه|غير السوال|بدل السوال|التالي|اللي بعده|الي بعده|السوال الي بعده|^ *(سوال|السوال) *$|خلنا نبدا|ابدا المسابقه|يلا نبدا/,
+  idk: /ما اعرف|ما ادري|مادري|ما اعرفه|لا اعرف|لا ادري|ما عرفت|استسلم|صعب/,
+};
+function intentOf(said){
+  const u = norm(said).replace(/ؤ/g,'و').replace(/سؤال/g,'سوال');
+  if(RX.bye.test(u)) return 'bye';
+  if(RX.next.test(u)) return 'next';
+  if(RX.idk.test(u)) return 'idk';
+  return 'other';
+}
+
+/* ---------- state ---------- */
+const S = {on:false, cur:null, order:[], cat:-1, ok:0, tries:0, speaking:false, busy:false, history:[]};
+const asked = new Set();
+
+function store(k,v){try{ if(v===undefined) return localStorage.getItem(k)||''; localStorage.setItem(k,v);}catch(e){return ''}}
+['elKey','elVoice','clKey','srLang'].forEach(id=>{const el=$(id); el.value=store('rashid_'+id); el.addEventListener('change',()=>store('rashid_'+id,el.value.trim()));});
+
+function pad(n){return String(n).padStart(2,'0')}
+function pool(){return DATA.qs.filter(q=>(S.cat<0||q.c===S.cat) && !asked.has(q.id));}
+function updateScore(){$('sOk').textContent=S.ok;$('sTry').textContent=S.tries;$('sLeft').textContent=DATA.qs.length-asked.size;}
+
+/* category chips */
+(function(){const box=$('cats');const mk=(i,t)=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.setAttribute('aria-pressed',i===S.cat);
+  b.onclick=()=>{S.cat=i;[...box.children].forEach(c=>c.setAttribute('aria-pressed',c===b));};box.appendChild(b);};
+  mk(-1,'كل الأقسام'); DATA.cats.forEach((c,i)=>mk(i,c));})();
+
+/* ---------- speech out ---------- */
+const IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+const SILENT = 'data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA//NwwAAAAAAAAAAAAEluZm8AAAAPAAAACAAAA/oAR0dHR0dHR0dHR0dHYmJiYmJiYmJiYmJifHx8fHx8fHx8fHx8fJaWlpaWlpaWlpaWlrGxsbGxsbGxsbGxsbHLy8vLy8vLy8vLy8vl5eXl5eXl5eXl5eXl////////////////AAAAAExhdmM2MC4zMQAAAAAAAAAAAAAAACQC1AAAAAAAAAP6yysejgAAAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsRbAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NCxKMAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NAxKQAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/80LEowAAA0gAAAAAVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/80DEpAAAA0gAAAAAVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsSjAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVQ==';
+const audioEl = new Audio(); audioEl.preload='auto'; audioEl.setAttribute('playsinline',''); audioEl.playsInline=true;
+function unlockAudio(){ // must run inside the tap itself: iPhone only lets a page play sound after a direct touch
+  try{ audioEl.src=SILENT; const p=audioEl.play(); if(p) p.catch(()=>{}); }catch(_){}
+  try{ if('speechSynthesis' in window){ const u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u); } }catch(_){}
+} let audioAttached=false; let ttsVoice=null;   // one player for every clip (keeps mobile autoplay unlocked)
+function pickVoice(){const vs=speechSynthesis.getVoices();ttsVoice=vs.find(v=>/ar[-_]AE/i.test(v.lang))||vs.find(v=>/^ar/i.test(v.lang))||null;}
+if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+function setTalking(on){S.speaking=on; setTimeout(()=>updateTalk&&updateTalk(),0); if(!on) speakEndAt=performance.now();Avatar.setState(on?'talk':(S.on?(S.busy?'think':'listen'):'idle'));const m=$('mic');m.classList.toggle('speak',on);m.classList.toggle('listen',!on&&S.on);$('micTxt').textContent=on?'راشد يتكلم…':'راشد يسمعك…';}
+function playFile(src){return new Promise(res=>{
+  let done=false, guard=null; const fin=ok=>{ if(done) return; done=true; clearTimeout(guard); audioEl.onended=audioEl.onerror=audioEl.onloadedmetadata=null; res(ok); };
+  if(!audioAttached && !IOS){ Avatar.attach(audioEl); audioAttached=true; }
+  audioEl.onended=()=>fin(true); audioEl.onerror=()=>fin(false);
+  // safety net: if the browser never reports the end, finish shortly after the clip's real length
+  audioEl.onloadedmetadata=()=>{ const d=isFinite(audioEl.duration)?audioEl.duration:12; clearTimeout(guard); guard=setTimeout(()=>fin(true),(d+1.2)*1000); };
+  guard=setTimeout(()=>fin(false),15000);
+  audioEl.src=src; audioEl.currentTime=0;
+  audioEl.play().catch(()=>fin(false));
+});}
+async function elevenTTS(text){
+  const key=$('elKey').value.trim(), voice=$('elVoice').value.trim(); if(!key||!voice) return false;
+  try{const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+encodeURIComponent(voice)+'?output_format=mp3_44100_128',{method:'POST',
+      headers:{'xi-api-key':key,'Content-Type':'application/json','Accept':'audio/mpeg'},body:JSON.stringify({text,model_id:'eleven_multilingual_v2'})});
+    if(!r.ok) return false; const url=URL.createObjectURL(await r.blob()); const ok=await playFile(url); URL.revokeObjectURL(url); return ok;}catch(e){return false;}
+}
+function browserTTS(text){return new Promise(res=>{if(!('speechSynthesis' in window)){setTimeout(res,Math.min(6000,text.length*70));return;}
+  speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='ar-AE';if(ttsVoice)u.voice=ttsVoice;u.rate=.95;
+  u.onend=res;u.onerror=res;speechSynthesis.speak(u);});}
+/* say(text, clip): show text, play the recorded clip if it exists, else ElevenLabs live voice, else browser voice */
+let sayChain=Promise.resolve(), speakEndAt=0, askedAt=0, lastHeard={t:'',at:0};
+function say(text, clip){ const p=sayChain.then(()=>sayNow(text,clip)); sayChain=p.catch(()=>{}); return p; }
+async function sayNow(text, clip){
+  $('bubble').textContent=text; if(!(IOS && startedByTap && !micOkOnce)) pauseEars(); setTalking(true);
+  let done=false;
+  if(clip && (HAS.has(clip) || clip.startsWith('audio/x-'))) done = await playFile(clip);
+  if(!done) done = await elevenTTS(text);
+  if(!done) await browserTTS(text);
+  setTalking(false); if(!S.busy) resumeEars();
+}
+
+/* ---------- quiz flow ---------- */
+async function askNext(prefix,pclip){ pending=null;
+  const p = pool();
+  if(!p.length){ S.cur=null; await say((prefix?prefix+' ':'')+'خلصت أسئلة هذا القسم! تقدر تختار قسم ثاني أو تقول مع السلامة.','audio/x-done.mp3'); return; }
+  const q = p[Math.floor(Math.random()*p.length)]; S.cur=q; asked.add(q.id); updateScore(); Avatar.react('lean');
+  $('qNo').textContent='السؤال '+q.id; $('qCat').textContent=DATA.cats[q.c]; $('qText').textContent=q.q;
+  const a=$('ans'); a.classList.remove('open'); $('ansText').textContent='الإجابة مخفية، تظهر فقط عند الإجابة الصحيحة';
+  if(prefix) await say(prefix,pclip||null);
+  await say(q.q, 'audio/q'+pad(q.id)+'.mp3'); askedAt=performance.now(); pending=null; lastHeard={t:'',at:0};
+  $('heard').innerHTML='<b>دورك! جاوب الحين…</b>';
+}
+async function onCorrect(){ Avatar.react('yes');
+  const q=S.cur; S.ok++; S.tries++; updateScore();
+  const a=$('ans'); a.classList.add('open'); $('ansText').textContent=q.a;
+  const praise='أحسنت! إجابة صحيحة';
+  await say(praise,'audio/x-correct.mp3');
+  await say('الإجابة: '+q.a,'audio/a'+pad(q.id)+'.mp3');
+  S.cur=null;
+  await askNext('السؤال اللي بعده.','audio/x-next.mp3');
+}
+async function onWrong(){ Avatar.react('no');
+  S.tries++; updateScore(); const f=$('file'); f.classList.remove('flash-no'); void f.offsetWidth; f.classList.add('flash-no');
+  await say('سامحنا، مرة ثانية. حاول مرة ثانية، أو قل غيّره.','audio/x-wrong.mp3');
+}
+
+/* ---------- smart layer: Claude (inside Claude viewer via sample, or via API key) ---------- */
+let samplePromise = (window.claude && window.claude.use) ? window.claude.use('sample').catch(()=>null) : Promise.resolve(null);
+let sampleDead=false;
+function brainPrompt(said){
+  const q=S.cur;
+  return `أنت "راشد"، الشخصية الافتراضية لمحاكم ونيابات عجمان، تقدّم مسابقة صوتية عن تراث الإمارات بلهجة إماراتية مهذبة ودودة.
+${q?`السؤال الحالي: ${q.q}\nالإجابة الرسمية (سرّية، لا تذكرها أبداً): ${q.a}`:'لا يوجد سؤال حالي مطروح.'}
+قال المتسابق (من التعرف على الصوت، قد يحتوي أخطاء إملائية): «${said}»
+
+صنّف كلامه وأجب بـ JSON فقط بهذا الشكل:
+{"intent":"answer|next|bye|chat","correct":true|false,"reply":"..."}
+- "answer": محاولة إجابة على السؤال الحالي. correct=true إذا كانت صحيحة أو قريبة جداً من المعنى (تقبّل المرادفات واللهجة والأخطاء الإملائية البسيطة)، وإلا false. reply فارغ.
+- "next": يطلب سؤالاً أو تغيير السؤال. "bye": يودّع أو ينهي المحادثة.
+- "chat": سؤال أو كلام عام خارج المسابقة. اكتب في reply رداً قصيراً (جملة أو جملتان، أقل من 35 كلمة) بصوت راشد، صحيحاً ومفيداً. إن كان سؤالاً قانونياً شخصياً فقدّم معلومة عامة وانصح بمراجعة محاكم ونيابات عجمان. لا تكشف إجابة السؤال الحالي، وإن كان هناك سؤال حالي فاختم بتذكير لطيف به.`;
+}
+function localChat(said){
+  const u=norm(said);
+  const R=[[/اسمك|من انت|منو انت|عرفنا بنفسك|مين انت/,'أنا راشد، الشخصية الافتراضية لمحاكم ونيابات عجمان، وأقدّم لكم مسابقة عن تراث الإمارات.'],
+    [/شلونك|كيف حالك|كيفك|شخبارك|علومك/,'بخير الحمد لله، وأنت شخبارك؟ إذا جاهز قل عطني السؤال.'],
+    [/شكرا|مشكور|يعطيك العافيه|تسلم/,'العفو، تسلم! حياك في أي وقت.'],
+    [/محاكم|نيابه|نيابات|قضيه|دعوى|محامي|قانون/,'للاستفسارات القانونية تقدر تتواصل مع محاكم ونيابات عجمان مباشرة عبر قنواتها الرسمية، وأنا هنا للمسابقة. تبي سؤال؟'],
+    [/السلام عليكم|مرحبا|هلا|صباح الخير|مساء الخير/,'وعليكم السلام ومرحبا بك! قل عطني السؤال ونبدأ.']];
+  for(const [rx,reply] of R) if(rx.test(u)) return {intent:'chat',reply};
+  return null;
+}
+async function brain(said){
+  if(window.RASHID_NO_AI) return localChat(said);
+  const prompt=brainPrompt(said);
+  const sample = sampleDead?null:await samplePromise;
+  if(sample){
+    try{ return await sample.json(prompt,{modelTier:'quick',cache:false}); }
+    catch(e){ if(['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(e.code)) sampleDead=true; }
+  }
+  const key=$('clKey').value.trim();
+  if(key){
+    try{const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'x-api-key':key,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({model:'claude-haiku-5-5',max_tokens:300,messages:[{role:'user',content:prompt}]})});
+      const j=await r.json(); const t=(j.content||[]).map(c=>c.text||'').join(''); const m=t.match(/\{[\s\S]*\}/); if(m) return JSON.parse(m[0]);}catch(e){}
+  }
+  return null;
+}
+
+/* ---------- handle one utterance ---------- */
+let pending=null;
+async function handle(input){
+  const alts=(Array.isArray(input)?input:[input]).map(x=>String(x||'').trim()).filter(Boolean);
+  if(!alts.length||!S.on) return;
+  if(S.busy){ pending=alts; return; }
+  const said=alts[0];
+  const key=norm(said).trim(), nowT=performance.now();
+  if(key && lastHeard.t && nowT-lastHeard.at<6000 && (key===lastHeard.t || key.includes(lastHeard.t) || lastHeard.t.includes(key))) return;   // same sentence reported twice
+  lastHeard={t:key,at:nowT};
+  if(S.cur && nowT-askedAt<1800 && alts.map(intentOf).includes('next')) return;   // leftover "give me a question" right after asking
+  S.busy=true; $('heard').innerHTML='سمعتك تقول: <b></b>'; $('heard').querySelector('b').textContent=said;
+  try{
+    const its=alts.map(intentOf); const it=its.includes('bye')?'bye':its.includes('next')?'next':its[0];
+    if(it==='bye'){ await endCall(true); return; }
+    if(it==='next'){ await askNext(S.cur?'تمام، نغيّره.':null,'audio/x-change.mp3'); return; }
+    if(it==='idk' && S.cur){ S.tries++; updateScore(); await say('ولا يهمك! فكّر شوي وحاول مرة ثانية، أو قل غيّره.','audio/x-idk.mp3'); return; }
+    if(S.cur && alts.some(a=>localGrade(S.cur,a))){ await onCorrect(); return; }
+    $('micTxt').textContent='راشد يفكّر…'; Avatar.setState('think');
+    const b = await brain(said);
+    if(b){
+      if(b.intent==='bye'){ await endCall(true); return; }
+      if(b.intent==='next'){ await askNext(S.cur?'تمام، نغيّره.':null,'audio/x-change.mp3'); return; }
+      if(b.intent==='answer' && S.cur){ if(b.correct) await onCorrect(); else await onWrong(); return; }
+      if(b.reply){ await say(b.reply,null); return; }
+    }
+    if(S.cur) await onWrong();
+    else await say('حياك الله! إذا تبي نبدأ المسابقة قل لي: عطني السؤال.','audio/x-hint.mp3');
+  } finally { S.busy=false; lastHeard.at=Math.min(lastHeard.at, performance.now()-4000); if(pending&&S.on&&!S.speaking){const p=pending;pending=null;setTimeout(()=>handle(p),0);} resumeEars(); Avatar.setState(S.on?(S.speaking?'talk':'listen'):'idle'); }
+}
+
+/* ---------- speech in ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let micOkOnce=false, tapMode=false, startedByTap=false, netErr=0, rec=null, earsWanted=false, earsRunning=false, stallTimer=null, lastInter='', watchdog=null;
+function initRec(){
+  if(!SR) return null;
+  const r=new SR(); r.lang=$('srLang').value||'ar-AE'; r.continuous=!IOS; r.interimResults=true; r.maxAlternatives=5;
+  r.onstart=()=>{earsRunning=true; micOkOnce=true; $('diag').textContent=''; updateTalk(); if(!S.speaking) $('micTxt').textContent='راشد يسمعك…';}; r.onsoundstart=()=>Avatar.heard(.4); r.onspeechstart=()=>Avatar.heard(.7);
+  r.onresult=e=>{
+    if(S.speaking || performance.now()-speakEndAt<700) return;   // ignore Rashid's own voice tail
+    let inter='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const res=e.results[i];
+      if(res.isFinal){ clearTimeout(stallTimer); lastInter=''; netErr=0;
+        const alts=[]; for(let k=0;k<res.length;k++) alts.push(res[k].transcript);
+        handle(alts); }
+      else inter+=res[0].transcript;
+    }
+    if(inter){ $('heard').textContent='… '+inter; Avatar.heard(.3);
+      if(inter!==lastInter){ lastInter=inter; clearTimeout(stallTimer);
+        // Chrome sometimes holds the final result: act on a stable partial after a short pause
+        stallTimer=setTimeout(()=>{ const t=lastInter; lastInter=''; if(t&&!S.speaking&&!S.busy&&performance.now()-speakEndAt>700){ pauseEars(); handle([t]); } },1400); } }
+  };
+  r.onerror=e=>{ if(e.error!=='aborted'&&e.error!=='no-speech') $('diag').textContent='تشخيص الميكروفون: '+e.error+' · '+location.protocol.replace(':','');
+    if((e.error==='not-allowed'||e.error==='service-not-allowed') && micOkOnce && !startedByTap){ tapMode=true; earsRunning=false; updateTalk(); }
+    else if(e.error==='not-allowed'||e.error==='service-not-allowed'){ earsWanted=false; micUnavailable(); }
+    else if(e.error==='audio-capture'){ $('micTxt').textContent='لا يوجد ميكروفون متصل'; }
+    else if(e.error==='network'){ netErr++; if(netErr>=2){ $('micTxt').textContent='خدمة تحويل الكلام لا تصل للإنترنت'; $('note').textContent='التعرّف على الصوت يحتاج اتصالاً بالإنترنت، ويبدو أن الشبكة تمنعه. جرّب شبكة أخرى أو متصفح Edge، أو اكتب إجابتك في المربع.'; $('typeForm').hidden=false; } }
+  };
+  r.onend=()=>{earsRunning=false; startedByTap=false; updateTalk(); if(earsWanted&&!tapMode&&S.on&&!S.speaking&&!S.busy) setTimeout(()=>{ if(!earsRunning&&!S.speaking){try{r.start();}catch(_){ tapMode=IOS; updateTalk(); }} },IOS?250:60);};
+  return r;
+}
+function pauseEars(){ clearTimeout(stallTimer); lastInter=''; if(rec&&earsRunning){try{rec.abort();}catch(_){}} }
+function resumeEars(){ updateTalk(); if(tapMode) return; if(rec&&earsWanted&&S.on&&!earsRunning&&!S.speaking){try{rec.start();}catch(_){ if(IOS){ tapMode=true; updateTalk(); } }} }
+function updateTalk(){ const b=$('talkBtn'); if(!b) return;
+  const turn=S.on&&!S.speaking&&!S.busy&&rec&&earsWanted;
+  b.hidden=!(tapMode&&turn); b.classList.toggle('on',earsRunning); $('talkTxt').textContent=earsRunning?'أسمعك… تكلّم':'اضغط وجاوب'; }
+function talkTap(){ if(!rec||S.speaking||S.busy) return; if(earsRunning){ try{rec.stop();}catch(_){} return; }
+  startedByTap=true; try{ rec.start(); }catch(_){ try{rec.abort();}catch(__){} setTimeout(()=>{try{rec.start();}catch(___){}},200); } }
+/* live microphone level: lights Rashid's "listening" cues the moment you speak */
+let micStream=null, micAn=null, micBuf=null, micRAF=0;
+async function startMicMeter(){
+  if(IOS) return;
+  try{
+    micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+    const ac=new (window.AudioContext||window.webkitAudioContext)(); const src=ac.createMediaStreamSource(micStream);
+    micAn=ac.createAnalyser(); micAn.fftSize=512; micBuf=new Uint8Array(micAn.fftSize); src.connect(micAn);
+    const tick=()=>{ micAn.getByteTimeDomainData(micBuf); let s=0; for(let i=0;i<micBuf.length;i++){const v=(micBuf[i]-128)/128; s+=v*v;}
+      const lv=Math.min(1,Math.sqrt(s/micBuf.length)*9); $('lvl').style.width=(S.speaking?0:lv*100)+'%';
+      if(!S.speaking && lv>0.18) Avatar.heard(lv*0.25); micRAF=requestAnimationFrame(tick); };
+    tick();
+  }catch(_){}
+}
+function stopMicMeter(){ cancelAnimationFrame(micRAF); try{micStream?.getTracks().forEach(t=>t.stop());}catch(_){} micStream=null; $('lvl').style.width='0'; }
+function micUnavailable(){
+  $('typeForm').hidden=false; $('mic').classList.remove('listen'); $('micTxt').textContent='الميكروفون غير متاح هنا، اكتب إجابتك';
+  $('note').textContent='المتصفح لم يسمح بالميكروفون في هذه الصفحة. اكتب إجاباتك في المربع، أو شغّل نسخة الكمبيوتر في Google Chrome للمحادثة الصوتية.';
+}
+
+/* ---------- start / end ---------- */
+async function startCall(){
+  unlockAudio(); try{Avatar.unlock&&Avatar.unlock();}catch(_){} S.on=true; if(!IOS) Avatar.ensureCtx(); $('startBtn').hidden=true; $('live').hidden=false; $('typeForm').hidden=false;
+  try{ navigator.wakeLock?.request('screen').catch(()=>{}); }catch(_){}
+  rec=initRec();
+  if(rec && IOS){ try{ startedByTap=true; rec.start(); }catch(_){} }   // permission prompt happens inside the tap
+  if(rec){ earsWanted=true; startMicMeter();
+    clearInterval(watchdog); watchdog=setInterval(()=>{ if(earsWanted&&S.on&&!S.speaking&&!S.busy&&!earsRunning) resumeEars(); },1500);
+  } else { micUnavailable(); }
+  await say('مرحبا بكم، أنا راشد من محاكم ونيابات عجمان. عندما تقول لي: عطني السؤال، سأسألك.','audio/x-greeting.mp3');
+}
+async function endCall(spoken){
+  earsWanted=false; pauseEars(); clearInterval(watchdog); stopMicMeter();
+  if(spoken) await say('مع السلامة، في أمان الله. شكراً لمشاركتكم مع محاكم ونيابات عجمان.','audio/x-bye.mp3');
+  S.on=false; S.cur=null; setTalking(false); $('mic').classList.remove('listen');
+  $('live').hidden=true; $('typeForm').hidden=true; $('startBtn').hidden=false;
+  $('qNo').textContent='بانتظار أول سؤال'; $('qText').textContent='قل «عطني السؤال» وأنا أسألك.';
+}
+$('startBtn').onclick=startCall;
+$('talkBtn').onclick=talkTap;
+$('endBtn').onclick=()=>{ if(!S.busy) handle('مع السلامة'); else endCall(false); };
+$('nextBtn').onclick=()=>{ if(!S.busy) handle('عطني السؤال'); };
+$('typeIn').addEventListener('input',()=>Avatar.heard(.3));
+$('typeForm').addEventListener('submit',e=>{e.preventDefault();const v=$('typeIn').value;$('typeIn').value='';handle(v);});
+updateScore();
+</script>
