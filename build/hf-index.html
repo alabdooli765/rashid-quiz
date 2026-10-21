@@ -348,7 +348,7 @@ function playFile(src){return new Promise(res=>{
   // safety net: if the browser never reports the end, finish shortly after the clip's real length
   audioEl.onloadedmetadata=()=>{ const d=isFinite(audioEl.duration)?audioEl.duration:12; clearTimeout(guard); guard=setTimeout(()=>fin(true),(d+1.2)*1000); };
   guard=setTimeout(()=>fin(false),15000);
-  const AM=window.RASHID_AUDIO_MAP||{}; if(AM[src]){ audioEl.crossOrigin='anonymous'; src=AM[src]; }
+  const AM=window.RASHID_AUDIO_MAP||{}, AB=window.RASHID_AUDIO_BASE; if(AM[src]){ audioEl.crossOrigin='anonymous'; src=AM[src]; } else if(AB && src.indexOf('audio/')===0){ audioEl.crossOrigin='anonymous'; src=AB+src.slice(6)+'?v=kh1'; }
   audioEl.src=src; audioEl.currentTime=0;
   audioEl.play().catch(()=>fin(false));
 });}
